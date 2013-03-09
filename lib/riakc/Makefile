@@ -1,8 +1,8 @@
 CAMLP4=
-OCAMLC_OPTS=
-OCAMLOPT_OPTS=
+OCAMLC_OPTS=-package core,async,async_core,async_unix,bitstring,bitstring.syntax,protobuf -syntax camlp4o
+OCAMLOPT_OPTS=-for-pack Riakc $(OCAMLC_OPTS)
 
-cources=
+cources=robj.ml request.ml response.ml conn.ml
 
 sources=$(cources)
 
@@ -20,7 +20,21 @@ all: native byte
 
 native-code: native
 
+native: riakc.cmxa
+
+riakc.cmxa: riakc.cmx
+
+riakc.cmx: $(native_cmx)
+	ocamlfind ocamlopt -pack -o $@ $^
+
 byte-code: byte
+
+byte: riakc.cma
+
+riakc.cma: riakc.cmo
+
+riakc.cmo: $(byte_cmo)
+	ocamlfind ocamlc -pack -o $@ $^
 
 test:
 

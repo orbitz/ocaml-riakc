@@ -1,0 +1,10 @@
+open Core.Std
+
+let ping () =
+  "\x00\x00\x00\x01\x01"
+
+let client_id () =
+  "\x00\x00\x00\x01\x03"
+
+let server_info () =
+  "\x00\x00\x00\x01\x07"
