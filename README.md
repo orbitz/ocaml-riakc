@@ -1,1 +1,2 @@
-Template for my usual ocaml projects
+Protobufs Riak client in Ocaml
+

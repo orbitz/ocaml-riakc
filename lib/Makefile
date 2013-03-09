@@ -1,4 +1,4 @@
-SUBDIRS =
+SUBDIRS = riakc
 
 all_apps = $(SUBDIRS)
 
