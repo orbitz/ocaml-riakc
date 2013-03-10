@@ -4,12 +4,20 @@ module Old_string = String
 
 open Core.Std
 
+module P = Protobuf.Parser
+
 type t =
   | Ping
   | Client_id of string
-  | Server_info of (string * string)
+  | Server_info of (string option * string option)
 
-type error = [ `Bad_payload | `Incomplete_payload | Protobuf.Parser.error ]
+type error = [ `Bad_payload | `Incomplete_payload | P.error ]
+
+let run payload f =
+  let open Result.Monad_infix in
+  P.State.create payload >>= fun s ->
+  P.run f s              >>= fun (r, _) ->
+  Ok r
 
 let parse_error payload =
   failwith "nyi"
@@ -22,10 +30,14 @@ let parse_ping payload =
       Error `Bad_payload
 
 let parse_client_id payload =
-  failwith "nyi"
+  let open Result.Monad_infix in
+  run payload Pb_response.client_id >>= fun client_id ->
+  Ok (Client_id client_id)
 
 let parse_server_info payload =
-  failwith "nyi"
+  let open Result.Monad_infix in
+  run payload Pb_response.server_info >>= fun server_info ->
+  Ok (Server_info server_info)
 
 let message_code =
   Int.Map.of_alist_exn

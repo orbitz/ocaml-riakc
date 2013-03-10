@@ -2,7 +2,7 @@ CAMLP4=
 OCAMLC_OPTS=-package core,async,async_core,async_unix,bitstring,bitstring.syntax,protobuf -syntax camlp4o
 OCAMLOPT_OPTS=-for-pack Riakc $(OCAMLC_OPTS)
 
-cources=robj.ml request.ml response.ml conn.ml
+cources=pb_response.ml robj.ml request.ml response.ml conn.ml
 
 sources=$(cources)
 
@@ -37,6 +37,9 @@ riakc.cmo: $(byte_cmo)
 	ocamlfind ocamlc -pack -o $@ $^
 
 test:
+
+clean:
+	-rm -vf *.cmxa *.cma *.cmo *.cmx *.cmi *.o
 
 # Dependencies
 include ../Ocamlrules.mk.in

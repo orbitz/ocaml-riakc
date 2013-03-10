@@ -11,4 +11,5 @@ test:
 
 clean:
 	$(MAKE) -C lib clean
+	$(MAKE) -C examples clean
 

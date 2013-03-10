@@ -86,6 +86,24 @@ let ping t =
     | Error err ->
       Error err
 
+let client_id t =
+  do_request t Request.client_id >>| function
+    | Ok (Response.Client_id client_id) ->
+      Ok client_id
+    | Ok _ ->
+      Error `Wrong_type
+    | Error err ->
+      Error err
+
+let server_info t =
+  do_request t Request.server_info >>| function
+    | Ok (Response.Server_info (node, version)) ->
+      Ok (node, version)
+    | Ok _ ->
+      Error `Wrong_type
+    | Error err ->
+      Error err
+
 let get t ?(opts = []) ~b ~k =
   failwith "nyi"
 
