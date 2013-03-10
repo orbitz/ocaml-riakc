@@ -55,13 +55,23 @@ let read_payload r preamble =
   let payload = String.create resp_len in
   read_str r 0 payload
 
-let do_request t f =
+let rec read_response r =
   let open Deferred.Result.Monad_infix in
   let preamble = String.create 4 in
-  Writer.write t.w (f ());
-  read_str t.r 0 preamble   >>= fun _ ->
-  read_payload t.r preamble >>= fun payload ->
-  Deferred.return (Response.of_string payload)
+  read_str r 0 preamble   >>= fun _ ->
+  read_payload r preamble >>= fun payload ->
+  Deferred.return (Response.of_string payload) >>= function
+    | Response.More resp ->
+      read_response r >>= fun more ->
+      Deferred.return (Ok (resp::more))
+    | Response.Done resp ->
+      Deferred.return (Ok [resp])
+
+let do_request t f =
+  let open Deferred.Result.Monad_infix in
+  Deferred.return (f ())    >>= fun request ->
+  Writer.write t.w request;
+  read_response t.r
 
 let connect ~host ~port =
   let connect () =
@@ -79,7 +89,7 @@ let close t =
 
 let ping t =
   do_request t Request.ping >>| function
-    | Ok Response.Ping ->
+    | Ok [Response.Ping] ->
       Ok ()
     | Ok _ ->
       Error `Wrong_type
@@ -88,7 +98,7 @@ let ping t =
 
 let client_id t =
   do_request t Request.client_id >>| function
-    | Ok (Response.Client_id client_id) ->
+    | Ok [Response.Client_id client_id] ->
       Ok client_id
     | Ok _ ->
       Error `Wrong_type
@@ -97,7 +107,7 @@ let client_id t =
 
 let server_info t =
   do_request t Request.server_info >>| function
-    | Ok (Response.Server_info (node, version)) ->
+    | Ok [Response.Server_info (node, version)] ->
       Ok (node, version)
     | Ok _ ->
       Error `Wrong_type
@@ -106,10 +116,24 @@ let server_info t =
 
 let list_buckets t =
   do_request t Request.list_buckets >>| function
-    | Ok (Response.Buckets buckets) ->
+    | Ok [Response.Buckets buckets] ->
       Ok buckets
     | Ok _ ->
       Error `Wrong_type
+    | Error err ->
+      Error err
+
+let list_keys t bucket =
+  do_request t (Request.list_keys bucket) >>| function
+    | Ok keys -> begin
+      Ok (List.concat_map
+	    ~f:(function
+	      | Response.Keys keys ->
+		keys
+	      | _ ->
+		failwith "list_keys_bad_response")
+	    keys)
+    end
     | Error err ->
       Error err
 

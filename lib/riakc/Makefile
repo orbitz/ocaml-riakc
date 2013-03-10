@@ -39,7 +39,7 @@ riakc.cmo: $(byte_cmo)
 test:
 
 clean:
-	-rm -vf *.cmxa *.cma *.cmo *.cmx *.cmi *.o
+	-rm -vf *.cmxa *.cma *.cmo *.cmx *.cmi *.o *.a
 
 # Dependencies
 include ../Ocamlrules.mk.in
