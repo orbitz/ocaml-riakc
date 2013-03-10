@@ -5,9 +5,11 @@ type t =
   | Client_id of string
   | Server_info of (string option * string option)
   | Buckets of string list
-  | Keys of (string list * bool)
+  | Keys of string list
 
 type error = [ `Bad_payload | `Incomplete_payload | Protobuf.Parser.error ]
 
-val of_string    : string -> (t, [> error ]) Result.t
+type 'a cont = More of 'a | Done of 'a
+
+val of_string    : string -> (t cont, [> error ]) Result.t
 val parse_length : string -> (int, [> error ]) Result.t

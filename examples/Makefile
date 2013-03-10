@@ -51,7 +51,7 @@ list_keys.byte: list_keys.cmo
 test:
 
 clean:
-	-rm -f *.native *.byte *.cmx *.cmo *.o
+	-rm -f *.native *.byte *.cmx *.cmo *.o *.cmi
 
 # Dependencies
 include ../lib/Ocamlrules.mk.in

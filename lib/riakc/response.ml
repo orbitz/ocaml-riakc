@@ -11,9 +11,11 @@ type t =
   | Client_id of string
   | Server_info of (string option * string option)
   | Buckets of string list
-  | Keys of (string list * bool)
+  | Keys of string list
 
 type error = [ `Bad_payload | `Incomplete_payload | P.error ]
+
+type 'a cont = More of 'a | Done of 'a
 
 let run payload f =
   let open Result.Monad_infix in
@@ -27,29 +29,32 @@ let parse_error payload =
 let parse_ping payload =
   match Bitstring.string_of_bitstring payload with
     | "" ->
-      Ok Ping
+      Ok (Done Ping)
     | _ ->
       Error `Bad_payload
 
 let parse_client_id payload =
   let open Result.Monad_infix in
   run payload Pb_response.client_id >>= fun client_id ->
-  Ok (Client_id client_id)
+  Ok (Done (Client_id client_id))
 
 let parse_server_info payload =
   let open Result.Monad_infix in
   run payload Pb_response.server_info >>= fun server_info ->
-  Ok (Server_info server_info)
+  Ok (Done (Server_info server_info))
 
 let parse_list_buckets payload =
   let open Result.Monad_infix in
   run payload Pb_response.list_buckets >>= fun buckets ->
-  Ok (Buckets buckets)
+  Ok (Done (Buckets buckets))
 
 let parse_list_keys payload =
   let open Result.Monad_infix in
-  run payload Pb_response.list_keys >>= fun (keys, d) ->
-  Ok (Keys (keys, d))
+  run payload Pb_response.list_keys >>= function
+    | (keys, false) ->
+      Ok (More (Keys keys))
+    | (keys, true) ->
+      Ok (Done (Keys keys))
 
 let message_code =
   Int.Map.of_alist_exn
