@@ -104,6 +104,15 @@ let server_info t =
     | Error err ->
       Error err
 
+let list_buckets t =
+  do_request t Request.list_buckets >>| function
+    | Ok (Response.Buckets buckets) ->
+      Ok buckets
+    | Ok _ ->
+      Error `Wrong_type
+    | Error err ->
+      Error err
+
 let get t ?(opts = []) ~b ~k =
   failwith "nyi"
 

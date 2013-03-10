@@ -11,3 +11,6 @@ let server_info =
   P.bytes_opt 1 >>= fun node ->
   P.bytes_opt 2 >>= fun server ->
   P.return (node, server)
+
+let list_buckets =
+  P.bytes_rep 1 >>= P.return
