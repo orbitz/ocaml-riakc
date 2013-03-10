@@ -10,6 +10,10 @@ type error = [ `Bad_payload | `Incomplete_payload | P.error ]
 
 type 'a t = More of 'a | Done of 'a
 
+type props = { n_val      : int option
+	     ; allow_mult : bool option
+	     }
+
 let run payload f =
   let open Result.Monad_infix in
   P.State.create payload >>= fun s ->
@@ -48,6 +52,20 @@ let list_keys payload =
       Ok (More keys)
     | (keys, true) ->
       Ok (Done keys)
+
+let bucket_props payload =
+  let open Result.Monad_infix in
+  run payload Pb_response.bucket_props >>= fun (n_val, allow_mult) ->
+  match n_val with
+    | Some n_val32 -> begin
+      match Int32.to_int n_val32 with
+	| Some n_val ->
+	  Ok (Done { n_val = Some n_val; allow_mult })
+	| None ->
+	  Error `Overflow
+    end
+    | None ->
+      Ok (Done { n_val = None; allow_mult })
 
 let parse_mc s =
   let bits = Bitstring.bitstring_of_string s in

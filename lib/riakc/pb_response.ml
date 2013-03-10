@@ -23,3 +23,10 @@ let list_keys =
     | _ ->
       P.return (keys, false)
 
+let bucket_props =
+  let props =
+    P.int32_opt 1 >>= fun n_val ->
+    P.bool_opt  2 >>= fun allow_mult ->
+    P.return (n_val, allow_mult)
+  in
+  P.embd_msg 1 props >>= P.return

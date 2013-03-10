@@ -163,6 +163,20 @@ let list_keys t bucket =
     | Error err ->
       Error err
 
+let bucket_props t bucket =
+  do_request
+    t
+    0x14
+    (Request.bucket_props bucket)
+    Response.bucket_props
+  >>| function
+    | Ok [props] ->
+      Ok props
+    | Ok _ ->
+      Error `Wrong_type
+    | Error err ->
+      Error err
+
 let get t ?(opts = []) ~b ~k =
   failwith "nyi"
 

@@ -30,3 +30,9 @@ let list_keys bucket () =
   let b = B.create () in
   B.bytes b 1 bucket >>= fun () ->
   Ok (wrap_request '\x11' (B.to_string b))
+
+let bucket_props bucket () =
+  let open Result.Monad_infix in
+  let b = B.create () in
+  B.bytes b 1 bucket >>= fun () ->
+  Ok (wrap_request '\x13' (B.to_string b))
