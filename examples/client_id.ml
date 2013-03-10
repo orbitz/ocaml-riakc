@@ -6,7 +6,7 @@ let to_hex =
     ~f:(fun c ->
       sprintf "%X" (Char.to_int c))
 
-let ping () =
+let exec () =
   let open Deferred.Result.Monad_infix in
   let host = Sys.argv.(1) in
   let port = Int.of_string Sys.argv.(2) in
@@ -15,8 +15,8 @@ let ping () =
   Riakc.Conn.close c           >>= fun () ->
   return (Ok client_id)
 
-let perform_ping () =
-  ping () >>| function
+let eval () =
+  exec () >>| function
     | Ok client_id -> begin
       printf "Client Id - %s\n" (to_hex client_id);
       shutdown 0
@@ -27,5 +27,5 @@ let perform_ping () =
     end
 
 let () =
-  ignore (perform_ping ());
+  ignore (eval ());
   never_returns (Scheduler.go ())

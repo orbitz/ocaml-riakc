@@ -1,7 +1,7 @@
 open Core.Std
 open Async.Std
 
-let ping () =
+let exec () =
   let open Deferred.Result.Monad_infix in
   let host = Sys.argv.(1) in
   let port = Int.of_string Sys.argv.(2) in
@@ -9,8 +9,8 @@ let ping () =
   Riakc.Conn.ping c            >>= fun () ->
   Riakc.Conn.close c
 
-let perform_ping () =
-  ping () >>| function
+let eval () =
+  exec () >>| function
     | Ok () -> begin
       printf "pong\n";
       shutdown 0
@@ -21,5 +21,5 @@ let perform_ping () =
     end
 
 let () =
-  ignore (perform_ping ());
+  ignore (eval ());
   never_returns (Scheduler.go ())
