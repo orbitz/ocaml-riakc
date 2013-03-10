@@ -42,6 +42,8 @@ val server_info :
   t ->
   ((string option * string option), [> error | Response.error ]) Deferred.Result.t
 
+val list_buckets : t -> (string list, [> error | Response.error ]) Deferred.Result.t
+
 val get :
   t ->
   ?opts:Get_opts.t list ->

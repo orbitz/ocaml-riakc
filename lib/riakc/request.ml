@@ -8,3 +8,6 @@ let client_id () =
 
 let server_info () =
   "\x00\x00\x00\x01\x07"
+
+let list_buckets () =
+  "\x00\x00\x00\x01\x0F"
