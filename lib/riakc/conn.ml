@@ -126,7 +126,7 @@ let client_id t =
 let server_info t =
   do_request
     t
-    0x07
+    0x08
     Request.server_info
     Response.server_info
   >>| function
