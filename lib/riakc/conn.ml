@@ -58,7 +58,8 @@ let read_payload r preamble =
 let do_request t f =
   let open Deferred.Result.Monad_infix in
   let preamble = String.create 4 in
-  Writer.write t.w (f ());
+  Deferred.return (f ())    >>= fun request ->
+  Writer.write t.w request;
   read_str t.r 0 preamble   >>= fun _ ->
   read_payload t.r preamble >>= fun payload ->
   Deferred.return (Response.of_string payload)
@@ -108,6 +109,15 @@ let list_buckets t =
   do_request t Request.list_buckets >>| function
     | Ok (Response.Buckets buckets) ->
       Ok buckets
+    | Ok _ ->
+      Error `Wrong_type
+    | Error err ->
+      Error err
+
+let list_keys t bucket =
+  do_request t (Request.list_keys bucket) >>| function
+    | Ok (Response.Keys (keys, _)) ->
+      Ok keys
     | Ok _ ->
       Error `Wrong_type
     | Error err ->

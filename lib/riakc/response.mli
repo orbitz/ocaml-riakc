@@ -5,6 +5,7 @@ type t =
   | Client_id of string
   | Server_info of (string option * string option)
   | Buckets of string list
+  | Keys of (string list * bool)
 
 type error = [ `Bad_payload | `Incomplete_payload | Protobuf.Parser.error ]
 

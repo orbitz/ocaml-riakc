@@ -11,6 +11,7 @@ type t =
   | Client_id of string
   | Server_info of (string option * string option)
   | Buckets of string list
+  | Keys of (string list * bool)
 
 type error = [ `Bad_payload | `Incomplete_payload | P.error ]
 
@@ -45,13 +46,19 @@ let parse_list_buckets payload =
   run payload Pb_response.list_buckets >>= fun buckets ->
   Ok (Buckets buckets)
 
+let parse_list_keys payload =
+  let open Result.Monad_infix in
+  run payload Pb_response.list_keys >>= fun (keys, d) ->
+  Ok (Keys (keys, d))
+
 let message_code =
   Int.Map.of_alist_exn
-    [ ( 0, parse_error)
-    ; ( 2, parse_ping)
-    ; ( 4, parse_client_id)
-    ; ( 8, parse_server_info)
-    ; (16, parse_list_buckets)
+    [ (0x00, parse_error)
+    ; (0x02, parse_ping)
+    ; (0x04, parse_client_id)
+    ; (0x08, parse_server_info)
+    ; (0x10, parse_list_buckets)
+    ; (0x12, parse_list_keys)
     ]
 
 let find_mc mc =

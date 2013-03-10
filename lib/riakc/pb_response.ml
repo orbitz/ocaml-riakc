@@ -14,3 +14,12 @@ let server_info =
 
 let list_buckets =
   P.bytes_rep 1 >>= P.return
+
+let list_keys =
+  P.bytes_rep 1 >>= fun keys ->
+  P.bool_opt  2 >>= function
+    | Some true ->
+      P.return (keys, true)
+    | _ ->
+      P.return (keys, false)
+
