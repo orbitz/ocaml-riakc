@@ -5,7 +5,7 @@ let option_to_string = function
   | Some v -> v
   | None   -> "<none>"
 
-let ping () =
+let exec () =
   let open Deferred.Result.Monad_infix in
   let host = Sys.argv.(1) in
   let port = Int.of_string Sys.argv.(2) in
@@ -14,8 +14,8 @@ let ping () =
   Riakc.Conn.close c           >>= fun () ->
   return (Ok buckets)
 
-let perform_ping () =
-  ping () >>| function
+let eval () =
+  exec () >>| function
     | Ok buckets -> begin
       List.iter
 	~f:(printf "%s\n")
@@ -28,5 +28,5 @@ let perform_ping () =
     end
 
 let () =
-  ignore (perform_ping ());
+  ignore (eval ());
   never_returns (Scheduler.go ())
