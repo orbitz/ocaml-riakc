@@ -9,7 +9,7 @@ type t =
   | Client_id of string
   | Server_info of (string * string)
 
-type error = [ `Bad_payload | Protobuf.Parser.error ]
+type error = [ `Bad_payload | `Incomplete_payload | Protobuf.Parser.error ]
 
 let parse_error payload =
   failwith "nyi"
@@ -47,19 +47,35 @@ let parse_resp mc payload =
   find_mc mc >>= fun prsr ->
   prsr payload
 
-let of_bitstring bits =
+let of_string s =
+  let bits = Bitstring.bitstring_of_string s in
   let module Int32 = Old_int32 in
   let module Char = Old_char in
   let module String = Old_string in
   let open Result.Monad_infix in
   bitmatch bits with
-    | { len     : 32                         : bigendian
-      ; mc      : 8
-      ; payload : (Int32.to_int len - 1) * 8 : bitstring
-      ; rest    : -1                         : bitstring
+    | { mc      : 8
+      ; payload : -1 : bitstring
       } ->
       parse_resp mc payload >>= fun resp ->
-      Ok (resp, rest)
+      Ok resp
+    | { _ } ->
+      Error `Incomplete_payload
+
+let parse_length s =
+  let bits = Bitstring.bitstring_of_string s in
+  let to_int = Int32.to_int in
+  let module Int32 = Old_int32 in
+  let module Char = Old_char in
+  let module String = Old_string in
+  let open Result.Monad_infix in
+  bitmatch bits with
+    | { len : 32 : bigendian } -> begin
+      match to_int len with
+	| Some n ->
+	  Ok n
+	| None ->
+	  Error `Overflow
+    end
     | { _ } ->
       Error `Incomplete
-

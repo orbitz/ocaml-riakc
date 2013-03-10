@@ -16,7 +16,7 @@ module Quorum : sig
 end
 
 module Get_opts : sig
-  type error =[ `Bad_conn ]
+  type error =[ `Bad_conn | Response.error ]
 
   type t =
     | Timeout of int
@@ -34,8 +34,8 @@ module Put_opts : sig
 end
 
 val connect : host:string -> port:int -> (t, [> error ]) Deferred.Result.t
-val close   : t -> unit Deferred.t
-val ping    : t -> (unit, [> error ]) Deferred.Result.t
+val close   : t -> (unit, [> error ]) Deferred.Result.t
+val ping    : t -> (unit, [> error | Response.error ]) Deferred.Result.t
 
 val get :
   t ->

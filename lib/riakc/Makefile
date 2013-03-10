@@ -38,9 +38,5 @@ riakc.cmo: $(byte_cmo)
 
 test:
 
-native:
-
-byte:
-
 # Dependencies
 include ../Ocamlrules.mk.in

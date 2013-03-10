@@ -5,6 +5,7 @@ type t =
   | Client_id of string
   | Server_info of (string * string)
 
-type error = [ `Bad_payload | Protobuf.Parser.error ]
+type error = [ `Bad_payload | `Incomplete_payload | Protobuf.Parser.error ]
 
-val of_bitstring : Bitstring.bitstring -> ((t * Bitstring.bitstring), [> error ]) Result.t
+val of_string    : string -> (t, [> error ]) Result.t
+val parse_length : string -> (int, [> error ]) Result.t
