@@ -1,13 +1,8 @@
 open Core.Std
 open Async.Std
 
-let to_hex =
-  String.concat_map
-    ~f:(fun c ->
-      sprintf "%X" (Char.to_int c))
-
-let option_to_hex = function
-  | Some v -> to_hex v
+let option_to_string = function
+  | Some v -> v
   | None   -> "<none>"
 
 let ping () =
@@ -23,9 +18,9 @@ let perform_ping () =
   ping () >>| function
     | Ok (node, version) -> begin
       printf
-	"Server info - (%s, %s)\n"
-	(option_to_hex node)
-	(option_to_hex version);
+	"%s\n%s\n"
+	(option_to_string node)
+	(option_to_string version);
       shutdown 0
     end
     | Error _ -> begin
