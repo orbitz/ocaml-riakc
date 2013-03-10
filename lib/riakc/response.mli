@@ -3,7 +3,7 @@ open Core.Std
 type t =
   | Ping
   | Client_id of string
-  | Server_info of (string * string)
+  | Server_info of (string option * string option)
 
 type error = [ `Bad_payload | `Incomplete_payload | Protobuf.Parser.error ]
 

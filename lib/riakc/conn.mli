@@ -35,7 +35,12 @@ end
 
 val connect : host:string -> port:int -> (t, [> error ]) Deferred.Result.t
 val close   : t -> (unit, [> error ]) Deferred.Result.t
-val ping    : t -> (unit, [> error | Response.error ]) Deferred.Result.t
+
+val ping        : t -> (unit, [> error | Response.error ]) Deferred.Result.t
+val client_id   : t -> (string, [> error | Response.error ]) Deferred.Result.t
+val server_info :
+  t ->
+  ((string option * string option), [> error | Response.error ]) Deferred.Result.t
 
 val get :
   t ->
