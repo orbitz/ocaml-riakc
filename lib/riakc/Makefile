@@ -2,7 +2,7 @@ CAMLP4=
 OCAMLC_OPTS=-package core,async,async_core,async_unix,bitstring,bitstring.syntax,protobuf -syntax camlp4o
 OCAMLOPT_OPTS=-for-pack Riakc $(OCAMLC_OPTS)
 
-cources=pb_response.ml robj.ml request.ml response.ml conn.ml
+cources=pb_robj.ml pb_response.ml robj.ml request.ml response.ml opts.ml conn.ml
 
 sources=$(cources)
 

@@ -15,6 +15,7 @@ val server_info  : Bitstring.bitstring -> ((string option * string option) t, [>
 val list_buckets : Bitstring.bitstring -> (string list t, [> error ]) Result.t
 val list_keys    : Bitstring.bitstring -> (string list t, [> error ]) Result.t
 val bucket_props : Bitstring.bitstring -> (props t, [> error ]) Result.t
+val get          : Bitstring.bitstring -> (Robj.t t, [> error ]) Result.t
 
 val parse_mc     : string -> ((int * Bitstring.bitstring), [> error ]) Result.t
 val parse_length : string -> (int, [> error ]) Result.t

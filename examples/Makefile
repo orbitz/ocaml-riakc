@@ -4,7 +4,7 @@ CAMLP4=
 OCAMLC_OPTS=-package riakc
 OCAMLOPT_OPTS=$(OCAMLC_OPTS)
 
-cources=ping.ml client_id.ml server_info.ml list_buckets.ml list_keys.ml bucket_props.ml
+cources=ping.ml client_id.ml server_info.ml list_buckets.ml list_keys.ml bucket_props.ml get.ml
 
 sources=$(cources)
 
@@ -23,7 +23,8 @@ all: native byte
 native-code: native
 
 native: ping.native client_id.native server_info.native \
-	list_buckets.native list_keys.native bucket_props.native
+	list_buckets.native list_keys.native bucket_props.native \
+	get.native
 
 ping.native: ping.cmx
 
@@ -37,10 +38,13 @@ list_keys.native: list_keys.cmx
 
 bucket_props.native: bucket_props.cmx
 
+get.native: get.cmx
+
 byte-code: byte
 
 byte: ping.byte client_id.byte server_info.byte \
-	list_buckets.byte list_keys.byte bucket_props.byte
+	list_buckets.byte list_keys.byte bucket_props.byte \
+	get.byte
 
 ping.byte: ping.cmo
 
@@ -53,6 +57,8 @@ list_buckets.byte: list_buckets.cmo
 list_keys.byte: list_keys.cmo
 
 bucket_props.byte: bucket_props.cmo
+
+get.byte: get.cmo
 
 test:
 
