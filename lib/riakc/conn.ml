@@ -7,34 +7,6 @@ type t = { r : Reader.t
 
 type error = [ `Bad_conn ]
 
-module Quorum = struct
-  type t =
-    | One
-    | All
-    | Default
-    | Quorum
-    | N of int
-end
-
-module Get_opts = struct
-  type error = [ `Bad_conn | Response.error ]
-
-  type t =
-    | Timeout of int
-    | Quorum_read of Quorum.t
-end
-
-module Put_opts = struct
-  type error = [ `Bad_conn
-	       | `Not_found
-	       ]
-
-  type t =
-    | Timeout of int
-    | Quorum_write of Quorum.t
-end
-
-
 let rec read_str r pos s =
   Reader.read r ~pos s >>= function
     | `Ok l -> begin
@@ -178,7 +150,53 @@ let bucket_props t bucket =
       Error err
 
 let get t ?(opts = []) ~b ~k =
-  failwith "nyi"
+  let module R = Request in
+  let g = { R.bucket        = b
+	  ;   key           = k
+	  ;   r             = None
+	  ;   pr            = None
+	  ;   basic_quorum  = false
+	  ;   notfound_ok   = false
+	  ;   if_modified   = None
+	  ;   head          = false
+	  ;   deletedvclock = false
+	  }
+  in
+  let g =
+    let open Request in
+    List.fold_left
+      ~f:(fun g -> function
+	| Opts.Get.Timeout _ ->
+	  g
+	| Opts.Get.R n ->
+	  { g with r = Some (Opts.Quorum.to_int32 n) }
+	| Opts.Get.Pr n ->
+	  { g with pr = Some (Opts.Quorum.to_int32 n) }
+	| Opts.Get.If_modified s ->
+	  { g with if_modified = Some s }
+	| Opts.Get.Basic_quorum ->
+	  { g with basic_quorum = true }
+	| Opts.Get.Notfound_ok ->
+	  { g with notfound_ok = true }
+	| Opts.Get.Head ->
+	  { g with head = true }
+	| Opts.Get.Deletedvclock ->
+	  { g with deletedvclock = true })
+      ~init:g
+      opts
+  in
+  do_request
+    t
+    0x0A
+    (Request.get g)
+    Response.get
+  >>| function
+    | Ok [obj] ->
+      Ok obj
+    | Ok _ ->
+      Error `Wrong_type
+    | Error err ->
+      Error err
 
 let put t ?(opts = []) ~obj =
   failwith "nyi"

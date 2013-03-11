@@ -67,6 +67,11 @@ let bucket_props payload =
     | None ->
       Ok (Done { n_val = None; allow_mult })
 
+let get payload =
+  let open Result.Monad_infix in
+  run payload Pb_response.get >>= fun get ->
+  Ok (Done (Robj.of_pb get))
+
 let parse_mc s =
   let bits = Bitstring.bitstring_of_string s in
   let module Int32 = Old_int32 in

@@ -30,3 +30,5 @@ let bucket_props =
     P.return (n_val, allow_mult)
   in
   P.embd_msg 1 props >>= P.return
+
+let get = Pb_robj.Robj.parse

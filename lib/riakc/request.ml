@@ -2,6 +2,17 @@ open Core.Std
 
 module B = Protobuf.Builder
 
+type get = { bucket        : string
+	   ; key           : string
+	   ; r             : Int32.t option
+	   ; pr            : Int32.t option
+	   ; basic_quorum  : bool
+	   ; notfound_ok   : bool
+	   ; if_modified   : string option
+	   ; head          : bool
+	   ; deletedvclock : bool
+	   }
+
 let wrap_request mc s =
   (* Add 1 for the mc *)
   let l = String.length s + 1 in
@@ -36,3 +47,21 @@ let bucket_props bucket () =
   let b = B.create () in
   B.bytes b 1 bucket >>= fun () ->
   Ok (wrap_request '\x13' (B.to_string b))
+
+let get g () =
+  let basic_quorum  = Option.some_if g.basic_quorum true in
+  let notfound_ok   = Option.some_if g.notfound_ok true in
+  let head          = Option.some_if g.head true in
+  let deletedvclock = Option.some_if g.deletedvclock true in
+  let open Result.Monad_infix in
+  let b = B.create () in
+  B.bytes     b 1 g.bucket       >>= fun () ->
+  B.bytes     b 2 g.key          >>= fun () ->
+  B.int32_opt b 3 g.r            >>= fun () ->
+  B.int32_opt b 4 g.pr           >>= fun () ->
+  B.bool_opt  b 5 basic_quorum   >>= fun () ->
+  B.bool_opt  b 6 notfound_ok    >>= fun () ->
+  B.bytes_opt b 7 g.if_modified  >>= fun () ->
+  B.bool_opt  b 8 head           >>= fun () ->
+  B.bool_opt  b 9 deletedvclock  >>= fun () ->
+  Ok (wrap_request '\x09' (B.to_string b))

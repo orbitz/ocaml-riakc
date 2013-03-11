@@ -5,34 +5,6 @@ type t
 
 type error = [ `Bad_conn ]
 
-module Quorum : sig
-  type t =
-    | One
-    | All
-    | Default
-    | Quorum
-    | N of int
-
-end
-
-module Get_opts : sig
-  type error =[ `Bad_conn | Response.error ]
-
-  type t =
-    | Timeout of int
-    | Quorum_read of Quorum.t
-end
-
-module Put_opts : sig
-  type error = [ `Bad_conn
-	       | `Not_found
-	       ]
-
-  type t =
-    | Timeout of int
-    | Quorum_write of Quorum.t
-end
-
 val connect : host:string -> port:int -> (t, [> error ]) Deferred.Result.t
 val close   : t -> (unit, [> error ]) Deferred.Result.t
 
@@ -48,13 +20,13 @@ val bucket_props : t -> string -> (Response.props, [> error | Response.error ]) 
 
 val get :
   t ->
-  ?opts:Get_opts.t list ->
+  ?opts:Opts.Get.t list ->
   b:string ->
   k:string ->
-  (Robj.t, [> Get_opts.error ]) Deferred.Result.t
+  (Robj.t, [> Opts.Get.error ]) Deferred.Result.t
 
 val put :
   t ->
-  ?opts:Put_opts.t list ->
+  ?opts:Opts.Put.t list ->
   obj:Robj.t ->
-  (Robj.t, [> Put_opts.error ]) Deferred.Result.t
+  (Robj.t, [> Opts.Put.error ]) Deferred.Result.t
