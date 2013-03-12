@@ -21,37 +21,29 @@ let rec read_str r pos s =
 let parse_length preamble =
   Deferred.return (Response.parse_length preamble)
 
-let parse_mc payload =
-  Deferred.return (Response.parse_mc payload)
-
 let read_payload r preamble =
   let open Deferred.Result.Monad_infix in
   parse_length preamble >>= fun resp_len ->
   let payload = String.create resp_len in
   read_str r 0 payload
 
-let rec read_response mc r f =
+let rec read_response r f =
   let open Deferred.Result.Monad_infix in
   let preamble = String.create 4 in
-  read_str r 0 preamble   >>= fun _ ->
-  read_payload r preamble >>= fun mc_payload ->
-  parse_mc mc_payload     >>= function
-    | (p_mc, payload) when p_mc = mc -> begin
-      Deferred.return (f payload) >>= function
-	| Response.More resp ->
-	  read_response mc r f >>= fun more ->
-	  Deferred.return (Ok (resp::more))
-	| Response.Done resp ->
-	  Deferred.return (Ok [resp])
-    end
-    | _ ->
-      Deferred.return (Error `Bad_payload)
+  read_str r 0 preamble       >>= fun _ ->
+  read_payload r preamble     >>= fun payload ->
+  Deferred.return (f payload) >>= function
+    | Response.More resp ->
+      read_response r f >>= fun more ->
+      Deferred.return (Ok (resp::more))
+    | Response.Done resp ->
+      Deferred.return (Ok [resp])
 
-let do_request t mc g f =
+let do_request t g f =
   let open Deferred.Result.Monad_infix in
   Deferred.return (g ())    >>= fun request ->
   Writer.write t.w request;
-  read_response mc t.r f
+  read_response t.r f
 
 let connect ~host ~port =
   let connect () =
@@ -70,7 +62,6 @@ let close t =
 let ping t =
   do_request
     t
-    0x02
     Request.ping
     Response.ping
   >>| function
@@ -84,7 +75,6 @@ let ping t =
 let client_id t =
   do_request
     t
-    0x04
     Request.client_id
     Response.client_id
   >>| function
@@ -98,7 +88,6 @@ let client_id t =
 let server_info t =
   do_request
     t
-    0x08
     Request.server_info
     Response.server_info
   >>| function
@@ -112,7 +101,6 @@ let server_info t =
 let list_buckets t =
   do_request
     t
-    0x10
     Request.list_buckets
     Response.list_buckets
   >>| function
@@ -126,7 +114,6 @@ let list_buckets t =
 let list_keys t bucket =
   do_request
     t
-    0x12
     (Request.list_keys bucket)
     Response.list_keys
   >>| function
@@ -138,7 +125,6 @@ let list_keys t bucket =
 let bucket_props t bucket =
   do_request
     t
-    0x14
     (Request.bucket_props bucket)
     Response.bucket_props
   >>| function
@@ -187,7 +173,6 @@ let get t ?(opts = []) ~b ~k =
   in
   do_request
     t
-    0x0A
     (Request.get g)
     Response.get
   >>| function
