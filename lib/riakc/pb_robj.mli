@@ -35,7 +35,7 @@ module Content : sig
 end
 
 module Robj : sig
-  type t = { content   : Content.t
+  type t = { contents  : Content.t list
 	   ; vclock    : string option
 	   ; unchanged : bool option
 	   }

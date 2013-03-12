@@ -141,8 +141,12 @@ let get t ?(opts = []) ~b ~k =
     (Request.get (Opts.Get.get_of_opts opts ~b ~k))
     Response.get
   >>| function
-    | Ok [obj] ->
-      Ok obj
+    | Ok [robj] -> begin
+      if Robj.contents robj = [] && Robj.vclock robj = None then
+	Error `Notfound
+      else
+	Ok robj
+    end
     | Ok _ ->
       Error `Wrong_type
     | Error err ->
