@@ -8,14 +8,13 @@ type props = { n_val      : int option
 	     ; allow_mult : bool option
 	     }
 
-val error        : Bitstring.bitstring -> (unit t, [> error ]) Result.t
-val ping         : Bitstring.bitstring -> (unit t, [> error ]) Result.t
-val client_id    : Bitstring.bitstring -> (string t, [> error ]) Result.t
-val server_info  : Bitstring.bitstring -> ((string option * string option) t, [> error ]) Result.t
-val list_buckets : Bitstring.bitstring -> (string list t, [> error ]) Result.t
-val list_keys    : Bitstring.bitstring -> (string list t, [> error ]) Result.t
-val bucket_props : Bitstring.bitstring -> (props t, [> error ]) Result.t
-val get          : Bitstring.bitstring -> (Robj.t t, [> error ]) Result.t
+val error        : string -> (unit t, [> error ]) Result.t
+val ping         : string -> (unit t, [> error ]) Result.t
+val client_id    : string -> (string t, [> error ]) Result.t
+val server_info  : string -> ((string option * string option) t, [> error ]) Result.t
+val list_buckets : string -> (string list t, [> error ]) Result.t
+val list_keys    : string -> (string list t, [> error ]) Result.t
+val bucket_props : string -> (props t, [> error ]) Result.t
+val get          : string -> (Robj.t t, [> error ]) Result.t
 
-val parse_mc     : string -> ((int * Bitstring.bitstring), [> error ]) Result.t
 val parse_length : string -> (int, [> error ]) Result.t

@@ -14,40 +14,59 @@ type props = { n_val      : int option
 	     ; allow_mult : bool option
 	     }
 
-let run payload f =
+let parse_mc s =
+  let bits = Bitstring.bitstring_of_string s in
+  let module Int32 = Old_int32 in
+  let module Char = Old_char in
+  let module String = Old_string in
   let open Result.Monad_infix in
-  P.State.create payload >>= fun s ->
-  P.run f s              >>= fun (r, _) ->
-  Ok r
+  bitmatch bits with
+    | { mc      : 8
+      ; payload : -1 : bitstring
+      } ->
+      Ok (Core.Std.Char.of_int_exn mc, payload)
+    | { _ } ->
+      Error `Incomplete_payload
+
+
+let run mc mc_payload f =
+  let open Result.Monad_infix in
+  parse_mc mc_payload >>= function
+    | (p_mc, payload) when p_mc = mc -> begin
+      P.State.create payload >>= fun s ->
+      P.run f s              >>= fun (r, _) ->
+      Ok r
+    end
+    | _ ->
+      Error `Bad_payload
 
 let error payload =
   failwith "nyi"
 
-let ping payload =
-  match Bitstring.string_of_bitstring payload with
-    | "" ->
-      Ok (Done ())
-    | _ ->
-      Error `Bad_payload
+let ping = function
+  | "\x02" ->
+    Ok (Done ())
+  | _ ->
+    Error `Bad_payload
 
 let client_id payload =
   let open Result.Monad_infix in
-  run payload Pb_response.client_id >>= fun client_id ->
+  run '\x04' payload Pb_response.client_id >>= fun client_id ->
   Ok (Done client_id)
 
 let server_info payload =
   let open Result.Monad_infix in
-  run payload Pb_response.server_info >>= fun server_info ->
+  run '\x08' payload Pb_response.server_info >>= fun server_info ->
   Ok (Done server_info)
 
 let list_buckets payload =
   let open Result.Monad_infix in
-  run payload Pb_response.list_buckets >>= fun buckets ->
+  run '\x10' payload Pb_response.list_buckets >>= fun buckets ->
   Ok (Done buckets)
 
 let list_keys payload =
   let open Result.Monad_infix in
-  run payload Pb_response.list_keys >>= function
+  run '\x12' payload Pb_response.list_keys >>= function
     | (keys, false) ->
       Ok (More keys)
     | (keys, true) ->
@@ -55,7 +74,7 @@ let list_keys payload =
 
 let bucket_props payload =
   let open Result.Monad_infix in
-  run payload Pb_response.bucket_props >>= fun (n_val, allow_mult) ->
+  run '\x14' payload Pb_response.bucket_props >>= fun (n_val, allow_mult) ->
   match n_val with
     | Some n_val32 -> begin
       match Int32.to_int n_val32 with
@@ -69,22 +88,8 @@ let bucket_props payload =
 
 let get payload =
   let open Result.Monad_infix in
-  run payload Pb_response.get >>= fun get ->
+  run '\x0A' payload Pb_response.get >>= fun get ->
   Ok (Done (Robj.of_pb get))
-
-let parse_mc s =
-  let bits = Bitstring.bitstring_of_string s in
-  let module Int32 = Old_int32 in
-  let module Char = Old_char in
-  let module String = Old_string in
-  let open Result.Monad_infix in
-  bitmatch bits with
-    | { mc      : 8
-      ; payload : -1 : bitstring
-      } ->
-      Ok (mc, payload)
-    | { _ } ->
-      Error `Incomplete_payload
 
 let parse_length s =
   let bits = Bitstring.bitstring_of_string s in
