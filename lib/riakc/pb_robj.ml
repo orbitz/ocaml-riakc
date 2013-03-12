@@ -69,14 +69,14 @@ module Content = struct
 end
 
 module Robj = struct
-  type t = { content   : Content.t
+  type t = { contents  : Content.t list
 	   ; vclock    : string option
 	   ; unchanged : bool option
 	   }
 
   let parse =
-    P.embd_msg  1 Content.parse >>= fun content ->
-    P.bytes_opt 2               >>= fun vclock ->
-    P.bool_opt  3               >>= fun unchanged ->
-    P.return { content; vclock; unchanged }
+    P.embd_msg_rep 1 Content.parse >>= fun contents ->
+    P.bytes_opt    2               >>= fun vclock ->
+    P.bool_opt     3               >>= fun unchanged ->
+    P.return { contents; vclock; unchanged }
 end

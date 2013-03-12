@@ -49,7 +49,7 @@ module Quorum = struct
 end
 
 module Get = struct
-  type error = [ `Bad_conn | Response.error ]
+  type error = [ `Bad_conn | `Notfound | Response.error ]
 
   type t =
     | Timeout     of int
