@@ -60,6 +60,50 @@ module Get = struct
     | Notfound_ok
     | Head
     | Deletedvclock
+
+  type get = { bucket        : string
+	     ; key           : string
+	     ; r             : Int32.t option
+	     ; pr            : Int32.t option
+	     ; basic_quorum  : bool
+	     ; notfound_ok   : bool
+	     ; if_modified   : string option
+	     ; head          : bool
+	     ; deletedvclock : bool
+	     }
+
+  let get_of_opts opts ~b ~k =
+    let g = { bucket        = b
+	    ; key           = k
+	    ; r             = None
+	    ; pr            = None
+	    ; basic_quorum  = false
+	    ; notfound_ok   = false
+	    ; if_modified   = None
+	    ; head          = false
+	    ; deletedvclock = false
+	    }
+    in
+    List.fold_left
+      ~f:(fun g -> function
+	| Timeout _ ->
+	  g
+	| R n ->
+	  { g with r = Some (Quorum.to_int32 n) }
+	| Pr n ->
+	  { g with pr = Some (Quorum.to_int32 n) }
+	| If_modified s ->
+	  { g with if_modified = Some s }
+	| Basic_quorum ->
+	  { g with basic_quorum = true }
+	| Notfound_ok ->
+	  { g with notfound_ok = true }
+	| Head ->
+	  { g with head = true }
+	| Deletedvclock ->
+	  { g with deletedvclock = true })
+      ~init:g
+      opts
 end
 
 module Put = struct
