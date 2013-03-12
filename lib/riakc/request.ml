@@ -2,17 +2,6 @@ open Core.Std
 
 module B = Protobuf.Builder
 
-type get = { bucket        : string
-	   ; key           : string
-	   ; r             : Int32.t option
-	   ; pr            : Int32.t option
-	   ; basic_quorum  : bool
-	   ; notfound_ok   : bool
-	   ; if_modified   : string option
-	   ; head          : bool
-	   ; deletedvclock : bool
-	   }
-
 let wrap_request mc s =
   (* Add 1 for the mc *)
   let l = String.length s + 1 in
@@ -49,6 +38,7 @@ let bucket_props bucket () =
   Ok (wrap_request '\x13' (B.to_string b))
 
 let get g () =
+  let open Opts.Get in
   let basic_quorum  = Option.some_if g.basic_quorum true in
   let notfound_ok   = Option.some_if g.notfound_ok true in
   let head          = Option.some_if g.head true in

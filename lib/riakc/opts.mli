@@ -22,6 +22,20 @@ module Get : sig
     | Notfound_ok
     | Head
     | Deletedvclock
+
+  type get = { bucket        : string
+	     ; key           : string
+	     ; r             : Int32.t option
+	     ; pr            : Int32.t option
+	     ; basic_quorum  : bool
+	     ; notfound_ok   : bool
+	     ; if_modified   : string option
+	     ; head          : bool
+	     ; deletedvclock : bool
+	     }
+
+  val get_of_opts : t list -> b:string -> k:string -> get
+
 end
 
 module Put : sig
