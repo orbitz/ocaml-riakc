@@ -59,6 +59,16 @@ let close t =
   Writer.close t.w >>= fun () ->
   Deferred.return (Ok ())
 
+let with_conn ~host ~port f =
+  connect host port >>= function
+    | Ok c -> begin
+      f c    >>= fun r ->
+      close c >>= fun _ ->
+      Deferred.return r
+    end
+    | Error err ->
+      Deferred.return (Error err)
+
 let ping t =
   do_request
     t
