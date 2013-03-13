@@ -62,7 +62,7 @@ let close t =
 let with_conn ~host ~port f =
   connect host port >>= function
     | Ok c -> begin
-      f ()    >>= fun r ->
+      f c    >>= fun r ->
       close c >>= fun _ ->
       Deferred.return r
     end

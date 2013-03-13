@@ -11,8 +11,8 @@ val close     : t -> (unit, [> error ]) Deferred.Result.t
 val with_conn :
   host:string ->
   port:int ->
-  (unit -> ('a, [> error ]) Deferred.Result.t) ->
-  ('a, [> error ]) Deferred.Result.t
+  (t -> ('a, [> error ] as 'e) Deferred.Result.t) ->
+  ('a, 'e) Deferred.Result.t
 
 val ping        : t -> (unit, [> error | Response.error ]) Deferred.Result.t
 val client_id   : t -> (string, [> error | Response.error ]) Deferred.Result.t
