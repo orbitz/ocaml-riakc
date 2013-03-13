@@ -15,14 +15,13 @@ let fail s =
   shutdown 1
 
 let exec () =
-  let open Deferred.Result.Monad_infix in
   let host = Sys.argv.(1) in
   let port = Int.of_string Sys.argv.(2) in
   let b    = Sys.argv.(3) in
-  Riakc.Conn.connect host port >>= fun c ->
-  Riakc.Conn.bucket_props c b  >>= fun props ->
-  Riakc.Conn.close c           >>= fun () ->
-  return (Ok props)
+  Riakc.Conn.with_conn
+    ~host
+    ~port
+    (fun c -> Riakc.Conn.bucket_props c b)
 
 let eval () =
   exec () >>| function
