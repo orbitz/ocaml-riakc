@@ -29,10 +29,12 @@ val get :
   ?opts:Opts.Get.t list ->
   b:string ->
   k:string ->
-  (Robj.t, [> Opts.Get.error ]) Deferred.Result.t
+  ([ `Maybe_siblings ] Robj.t, [> Opts.Get.error ]) Deferred.Result.t
 
 val put :
   t ->
   ?opts:Opts.Put.t list ->
-  obj:Robj.t ->
-  (Robj.t, [> Opts.Put.error ]) Deferred.Result.t
+  b:string ->
+  ?k:string ->
+  [ `No_siblings ] Robj.t ->
+  (([ `Maybe_siblings ] Robj.t * string option), [> Opts.Put.error ]) Deferred.Result.t

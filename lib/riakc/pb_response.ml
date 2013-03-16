@@ -31,4 +31,14 @@ let bucket_props =
   in
   P.embd_msg 1 props >>= P.return
 
-let get = Pb_robj.Robj.parse
+let get =
+  P.embd_msg_rep 1 Pb_robj.Content.parse >>= fun contents ->
+  P.bytes_opt    2                       >>= fun vclock ->
+  P.bool_opt     3                       >>= fun unchanged ->
+  P.return (contents, vclock, unchanged)
+
+let put =
+  P.embd_msg_rep 1 Pb_robj.Content.parse >>= fun contents ->
+  P.bytes_opt    2                       >>= fun vclock ->
+  P.bytes_opt    3                       >>= fun key ->
+  P.return (contents, vclock, key)

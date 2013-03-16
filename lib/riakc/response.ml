@@ -88,8 +88,13 @@ let bucket_props payload =
 
 let get payload =
   let open Result.Monad_infix in
-  run '\x0A' payload Pb_response.get >>= fun get ->
-  Ok (Done (Robj.of_pb get))
+  run '\x0A' payload Pb_response.get >>= fun (c, vclock, unchanged) ->
+  Ok (Done (Robj.of_pb c vclock unchanged))
+
+let put payload =
+  let open Result.Monad_infix in
+  run '\x0B' payload Pb_response.put >>= fun (c, vclock, key) ->
+  Ok (Done (Robj.of_pb c vclock None, key))
 
 let parse_length s =
   let bits = Bitstring.bitstring_of_string s in

@@ -55,3 +55,25 @@ let get g () =
   B.bool_opt  b 8 head           >>= fun () ->
   B.bool_opt  b 9 deletedvclock  >>= fun () ->
   Ok (wrap_request '\x09' (B.to_string b))
+
+let put p () =
+  let open Opts.Put in
+  let content         = Robj.Content.to_pb p.content in
+  let return_body     = Option.some_if p.return_body true in
+  let if_not_modified = Option.some_if p.if_not_modified true in
+  let if_none_match   = Option.some_if p.if_none_match true in
+  let return_head     = Option.some_if p.return_head true in
+  let open Result.Monad_infix in
+  let b = B.create () in
+  B.bytes     b  1 p.bucket                      >>= fun () ->
+  B.bytes_opt b  2 p.key                         >>= fun () ->
+  B.bytes_opt b  3 p.vclock                      >>= fun () ->
+  B.embd_msg  b  4 content Pb_robj.Content.build >>= fun () ->
+  B.int32_opt b  5 p.w                           >>= fun () ->
+  B.int32_opt b  6 p.dw                          >>= fun () ->
+  B.bool_opt  b  7 return_body                   >>= fun () ->
+  B.int32_opt b  8 p.pw                          >>= fun () ->
+  B.bool_opt  b  9 if_not_modified               >>= fun () ->
+  B.bool_opt  b 10 if_none_match                 >>= fun () ->
+  B.bool_opt  b 11 return_head                   >>= fun () ->
+  Ok (wrap_request '\x0B' (B.to_string b))
