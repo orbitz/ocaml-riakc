@@ -93,7 +93,7 @@ let get payload =
 
 let put payload =
   let open Result.Monad_infix in
-  run '\x0B' payload Pb_response.put >>= fun (c, vclock, key) ->
+  run '\x0C' payload Pb_response.put >>= fun (c, vclock, key) ->
   Ok (Done (Robj.of_pb c vclock None, key))
 
 let parse_length s =
