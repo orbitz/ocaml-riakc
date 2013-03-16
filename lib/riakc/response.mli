@@ -15,6 +15,7 @@ val server_info  : string -> ((string option * string option) t, [> error ]) Res
 val list_buckets : string -> (string list t, [> error ]) Result.t
 val list_keys    : string -> (string list t, [> error ]) Result.t
 val bucket_props : string -> (props t, [> error ]) Result.t
-val get          : string -> (Robj.t t, [> error ]) Result.t
+val get          : string -> ([ `Maybe_siblings ] Robj.t t, [> error ]) Result.t
+val put          : string -> (([ `Maybe_siblings ] Robj.t * string option) t, [> error ]) Result.t
 
 val parse_length : string -> (int, [> error ]) Result.t

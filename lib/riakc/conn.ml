@@ -162,5 +162,15 @@ let get t ?(opts = []) ~b ~k =
     | Error err ->
       Error err
 
-let put t ?(opts = []) ~obj =
-  failwith "nyi"
+let put t ?(opts = []) ~b ?k robj =
+  do_request
+    t
+    (Request.put (Opts.Put.put_of_opts opts ~b ~k robj))
+    Response.put
+  >>| function
+    | Ok [(robj, key)] ->
+      Ok (robj, key)
+    | Ok _ ->
+      Error `Wrong_type
+    | Error err ->
+      Error err

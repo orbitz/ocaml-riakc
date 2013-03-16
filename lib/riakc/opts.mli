@@ -39,11 +39,30 @@ module Get : sig
 end
 
 module Put : sig
-  type error = [ `Bad_conn
-	       | `Not_found
-	       ]
+  type error = [ `Bad_conn | Response.error ]
 
   type t =
     | Timeout of int
-    | Quorum_write of Quorum.t
+    | W       of Quorum.t
+    | Dw      of Quorum.t
+    | Pw      of Quorum.t
+    | Return_body
+    | If_not_modified
+    | If_none_match
+    | Return_head
+
+  type put = { bucket          : string
+	     ; key             : string option
+	     ; vclock          : string option
+	     ; content         : Robj.Content.t
+	     ; w               : Int32.t option
+	     ; dw              : Int32.t option
+	     ; pw              : Int32.t option
+	     ; return_body     : bool
+	     ; if_not_modified : bool
+	     ; if_none_match   : bool
+	     ; return_head     : bool
+	     }
+
+  val put_of_opts : t list -> b:string -> k:string option -> [ `No_siblings ] Robj.t -> put
 end

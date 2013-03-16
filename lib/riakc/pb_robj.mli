@@ -7,6 +7,7 @@ module Link : sig
 	   }
 
   val parse : t Protobuf.Parser.t
+  val build : t -> (string, [> Protobuf.Builder.error ]) Result.t
 end
 
 module Pair : sig
@@ -15,6 +16,7 @@ module Pair : sig
 	   }
 
   val parse : t Protobuf.Parser.t
+  val build : t -> (string, [> Protobuf.Builder.error ]) Result.t
 end
 
 module Content : sig
@@ -32,13 +34,5 @@ module Content : sig
 	   }
 
   val parse : t Protobuf.Parser.t
-end
-
-module Robj : sig
-  type t = { contents  : Content.t list
-	   ; vclock    : string option
-	   ; unchanged : bool option
-	   }
-
-  val parse : t Protobuf.Parser.t
+  val build : t -> (string, [> Protobuf.Builder.error ]) Result.t
 end
