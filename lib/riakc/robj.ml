@@ -72,6 +72,20 @@ module Content = struct
     ;   deleted          = option_of_bool c.deleted
     }
 
+  let create v =
+    { value = v
+    ; content_type     = None
+    ; charset          = None
+    ; content_encoding = None
+    ; vtag             = None
+    ; links            = []
+    ; last_mod         = None
+    ; last_mod_usec    = None
+    ; usermeta         = []
+    ; indexes          = []
+    ; deleted          = false
+    }
+
   let value t            = t.value
   let content_type t     = t.content_type
   let charset t          = t.charset
@@ -82,6 +96,18 @@ module Content = struct
   let usermeta t         = t.usermeta
   let indexes t          = t.indexes
   let deleted t          = t.deleted
+
+  let set_value v t             = { t with value = v }
+  let set_content_type ct t     = { t with content_type = ct }
+  let set_charset cs t          = { t with charset = cs }
+  let set_content_encoding ce t = { t with content_encoding = ce }
+  let set_vtag vt t             = { t with vtag = vt }
+  let set_last_mod lm t         = { t with last_mod = lm }
+  let set_last_mod_usec lmu t   = { t with last_mod_usec = lmu }
+  let set_usermeta u t          = { t with usermeta = u }
+  let set_indexes i t           = { t with indexes = i }
+
+
 end
 
 type 'a t = { contents  : Content.t list
@@ -99,9 +125,17 @@ let of_pb contents vclock unchanged =
 let to_pb t =
   (List.map ~f:Content.to_pb t.contents, t.vclock)
 
+let create cs =
+  { contents  = cs
+  ; vclock    = None
+  ; unchanged = false
+  }
+
 let contents t        = t.contents
 let content t         = List.hd_exn (t.contents)
-let set_contents t cs = { t with contents = cs }
-let set_content t c   = { t with contents = [c] }
 let vclock t          = t.vclock
 let unchanged t       = t.unchanged
+
+let set_contents cs t = { t with contents = cs }
+let set_content c t   = { t with contents = [c] }
+let set_vclock v t    = { t with vclock = v }
