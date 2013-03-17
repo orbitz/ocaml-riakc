@@ -77,3 +77,18 @@ let put p () =
   B.bool_opt  b 10 if_none_match                 >>= fun () ->
   B.bool_opt  b 11 return_head                   >>= fun () ->
   Ok (wrap_request '\x0B' (B.to_string b))
+
+let delete d () =
+  let open Opts.Delete in
+  let open Result.Monad_infix in
+  let b = B.create () in
+  B.bytes     b 1 d.bucket >>= fun () ->
+  B.bytes     b 2 d.key    >>= fun () ->
+  B.int32_opt b 3 d.rw     >>= fun () ->
+  B.bytes_opt b 4 d.vclock >>= fun () ->
+  B.int32_opt b 5 d.r      >>= fun () ->
+  B.int32_opt b 6 d.w      >>= fun () ->
+  B.int32_opt b 7 d.pr     >>= fun () ->
+  B.int32_opt b 8 d.pw     >>= fun () ->
+  B.int32_opt b 9 d.dw     >>= fun () ->
+  Ok (wrap_request '\x0D' (B.to_string b))

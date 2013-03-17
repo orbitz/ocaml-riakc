@@ -145,7 +145,7 @@ let bucket_props t bucket =
     | Error err ->
       Error err
 
-let get t ?(opts = []) ~b ~k =
+let get t ?(opts = []) ~b k =
   do_request
     t
     (Request.get (Opts.Get.get_of_opts opts ~b ~k))
@@ -170,6 +170,19 @@ let put t ?(opts = []) ~b ?k robj =
   >>| function
     | Ok [(robj, key)] ->
       Ok (robj, key)
+    | Ok _ ->
+      Error `Wrong_type
+    | Error err ->
+      Error err
+
+let delete t ?(opts = []) ~b k =
+  do_request
+    t
+    (Request.delete (Opts.Delete.delete_of_opts opts ~b ~k))
+    Response.delete
+  >>| function
+    | Ok [()] ->
+      Ok ()
     | Ok _ ->
       Error `Wrong_type
     | Error err ->

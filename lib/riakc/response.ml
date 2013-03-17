@@ -96,6 +96,12 @@ let put payload =
   run '\x0C' payload Pb_response.put >>= fun (c, vclock, key) ->
   Ok (Done (Robj.of_pb c vclock None, key))
 
+let delete = function
+  | "\x0E" ->
+    Ok (Done ())
+  | _ ->
+    Error `Bad_payload
+
 let parse_length s =
   let bits = Bitstring.bitstring_of_string s in
   let to_int = Int32.to_int in

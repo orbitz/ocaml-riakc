@@ -42,7 +42,7 @@ let exec () =
   Riakc.Conn.with_conn
     ~host
     ~port
-    (fun c -> Riakc.Conn.get c b k)
+    (fun c -> Riakc.Conn.get c ~b k)
 
 let eval () =
   exec () >>| function
