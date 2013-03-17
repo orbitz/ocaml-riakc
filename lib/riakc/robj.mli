@@ -11,6 +11,14 @@ end
 
 module Link : sig
   type t
+
+  val bucket : t -> string option
+  val key    : t -> string option
+  val tag    : t -> string option
+
+  val set_bucket : string option -> t -> t
+  val set_key    : string option -> t -> t
+  val set_tag    : string option -> t -> t
 end
 
 module Content : sig
@@ -23,6 +31,7 @@ module Content : sig
   val charset              : t -> string option
   val content_encoding     : t -> string option
   val vtag                 : t -> string option
+  val links                : t -> Link.t list
   val last_mod             : t -> Int32.t option
   val last_mod_usec        : t -> Int32.t option
   val usermeta             : t -> Pair.t list
@@ -34,6 +43,7 @@ module Content : sig
   val set_charset          : string option -> t -> t
   val set_content_encoding : string option -> t -> t
   val set_vtag             : string option -> t -> t
+  val set_links            : Link.t list -> t -> t
   val set_last_mod         : Int32.t option -> t -> t
   val set_last_mod_usec    : Int32.t option -> t -> t
   val set_usermeta         : Pair.t list -> t -> t
