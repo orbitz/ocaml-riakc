@@ -50,7 +50,7 @@ let connect ~host ~port =
     Tcp.connect (Tcp.to_host_and_port host port)
   in
   Monitor.try_with connect >>| function
-    | Ok (r, w) ->
+    | Ok (_s, r, w) ->
       Ok { r; w }
     | Error _exn ->
       Error `Bad_conn
