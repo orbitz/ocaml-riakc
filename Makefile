@@ -1,4 +1,4 @@
-.PHONY: all examples clean test
+.PHONY: all lib examples clean test
 
 all: lib examples
 
