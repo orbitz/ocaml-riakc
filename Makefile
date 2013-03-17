@@ -1,13 +1,16 @@
 .PHONY: all examples clean test
 
-all:
+all: lib examples
+
+lib:
 	$(MAKE) -C lib
 
-examples: all
+examples: lib
 	$(MAKE) -C examples
 
-test:
+test: lib
 	$(MAKE) -C lib test
+	$(MAKE) -C tests test
 
 clean:
 	$(MAKE) -C lib clean
