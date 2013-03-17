@@ -21,11 +21,32 @@ module Pair = struct
 end
 
 module Link = struct
-  type t = unit
+  type t = { bucket : string option
+	   ; key    : string option
+	   ; tag    : string option
+	   }
 
-  let of_pb _ = ()
+  let bucket t = t.bucket
+  let key t    = t.key
+  let tag t    = t.tag
 
-  let to_pb _ = ()
+  let set_bucket b t = { t with bucket = b }
+  let set_key k t    = { t with key = k }
+  let set_tag tag t  = { t with tag = tag }
+
+  let of_pb l =
+    let module L = Pb_robj.Link in
+    { bucket = l.L.bucket
+    ; key    = l.L.key
+    ; tag    = l.L.tag
+    }
+
+  let to_pb t =
+    { Pb_robj.Link.bucket = t.bucket
+    ;              key    = t.key
+    ;              tag    = t.tag
+    }
+
 end
 
 module Content = struct
@@ -64,7 +85,7 @@ module Content = struct
     ;   charset          = c.charset
     ;   content_encoding = c.content_encoding
     ;   vtag             = c.vtag
-    ;   links            = []
+    ;   links            = List.map ~f:Link.to_pb c.links
     ;   last_mod         = c.last_mod
     ;   last_mod_usec    = c.last_mod_usec
     ;   usermeta         = List.map ~f:Pair.to_pb c.usermeta
@@ -91,6 +112,7 @@ module Content = struct
   let charset t          = t.charset
   let content_encoding t = t.content_encoding
   let vtag t             = t.vtag
+  let links t            = t.links
   let last_mod t         = t.last_mod
   let last_mod_usec t    = t.last_mod_usec
   let usermeta t         = t.usermeta
@@ -102,6 +124,7 @@ module Content = struct
   let set_charset cs t          = { t with charset = cs }
   let set_content_encoding ce t = { t with content_encoding = ce }
   let set_vtag vt t             = { t with vtag = vt }
+  let set_links ls t            = { t with links = ls }
   let set_last_mod lm t         = { t with last_mod = lm }
   let set_last_mod_usec lmu t   = { t with last_mod_usec = lmu }
   let set_usermeta u t          = { t with usermeta = u }
