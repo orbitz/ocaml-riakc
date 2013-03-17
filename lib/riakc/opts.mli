@@ -66,3 +66,29 @@ module Put : sig
 
   val put_of_opts : t list -> b:string -> k:string option -> [ `No_siblings ] Robj.t -> put
 end
+
+module Delete : sig
+  type error = [ `Bad_conn | Response.error ]
+
+  type t =
+    | Timeout of int
+    | Rw      of Quorum.t
+    | R       of Quorum.t
+    | W       of Quorum.t
+    | Pr      of Quorum.t
+    | Pw      of Quorum.t
+    | Dw      of Quorum.t
+
+  type delete = { bucket : string
+		; key    : string
+		; rw     : Int32.t option
+		; vclock : string option
+		; r      : Int32.t option
+		; w      : Int32.t option
+		; pr     : Int32.t option
+		; pw     : Int32.t option
+		; dw     : Int32.t option
+		}
+
+  val delete_of_opts : t list -> b:string -> k:string -> delete
+end

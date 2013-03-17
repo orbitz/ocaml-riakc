@@ -6,7 +6,7 @@ OCAMLOPT_OPTS=$(OCAMLC_OPTS)
 
 cources=ping.ml client_id.ml server_info.ml \
 	list_buckets.ml list_keys.ml bucket_props.ml \
-	get.ml put.ml
+	get.ml put.ml delete.ml
 
 sources=$(cources)
 
@@ -46,6 +46,8 @@ get.native: get.cmx
 
 put.native: put.cmx
 
+delete.native: delete.cmx
+
 byte-code: byte
 
 byte: $(byte_bin)
@@ -65,6 +67,8 @@ bucket_props.byte: bucket_props.cmo
 get.byte: get.cmo
 
 put.byte: put.cmo
+
+delete.byte: delete.cmo
 
 test:
 

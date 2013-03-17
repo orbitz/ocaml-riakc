@@ -167,3 +167,58 @@ module Put = struct
       ~init:p
       opts
 end
+
+module Delete = struct
+  type error = [ `Bad_conn | Response.error ]
+
+  type t =
+    | Timeout of int
+    | Rw      of Quorum.t
+    | R       of Quorum.t
+    | W       of Quorum.t
+    | Pr      of Quorum.t
+    | Pw      of Quorum.t
+    | Dw      of Quorum.t
+
+  type delete = { bucket : string
+		; key    : string
+		; rw     : Int32.t option
+		; vclock : string option
+		; r      : Int32.t option
+		; w      : Int32.t option
+		; pr     : Int32.t option
+		; pw     : Int32.t option
+		; dw     : Int32.t option
+		}
+
+  let delete_of_opts opts ~b ~k =
+    let d = { bucket = b
+	    ; key    = k
+	    ; rw     = None
+	    ; vclock = None
+	    ; r      = None
+	    ; w      = None
+	    ; pr     = None
+	    ; pw     = None
+	    ; dw     = None
+	    }
+    in
+    List.fold_left
+      ~f:(fun d -> function
+	| Timeout _ ->
+	  d
+	| Rw n ->
+	  { d with rw = Some (Quorum.to_int32 n) }
+	| R n ->
+	  { d with w = Some (Quorum.to_int32 n) }
+	| W n ->
+	  { d with dw = Some (Quorum.to_int32 n) }
+	| Pr n ->
+	  { d with pr = Some (Quorum.to_int32 n) }
+	| Pw n ->
+	  { d with pw = Some (Quorum.to_int32 n) }
+	| Dw n ->
+	  { d with dw = Some (Quorum.to_int32 n) })
+      ~init:d
+      opts
+end
