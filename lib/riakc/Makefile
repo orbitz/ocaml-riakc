@@ -14,9 +14,13 @@ byte_cmo=$(sources:%.ml=%.cmo)
 
 native_cmi=$(sources_mli:%.mli=%.cmi)
 
-.PHONY: all native byte native-code byte-code test clean
+.PHONY: all install native byte native-code byte-code test clean
 
 all: native byte
+
+install: all
+	ocamlfind install riakc META riakc.cmxa riakc.cma riakc.a \
+	riakc.cmi $(native_cmx) $(native_cmi) $(sources_mli)
 
 native-code: native
 
