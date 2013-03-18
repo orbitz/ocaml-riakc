@@ -8,11 +8,18 @@ The two API entry points are Riakc.Conn and Riakc.Robj.
 
 #### Known Issues
 
-* Not heavily tested - test suite will be expanded
-
-* Only supports GET/PUT/DELETE and a few other operations
+https://github.com/orbitz/ocaml-riakc/issues/
 
 ### Release Notes
+
+#### 1.0.0
+
+* Requires Core >= 109.12.00 due to Async change and Ocaml >= 4.00
+
+* Links are not supported in GET/PUT
+
+* A note on the version number - this only represents that this release is not
+  backwards compatible with 0.0.0, not some new level of stability.
 
 #### 0.0.0
 
