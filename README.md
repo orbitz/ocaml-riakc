@@ -16,7 +16,7 @@ https://github.com/orbitz/ocaml-riakc/issues/
 
 * Requires Core >= 109.12.00 due to Async change and Ocaml >= 4.00
 
-* Links are not supported in GET/PUT
+* Links are now supported in GET/PUT
 
 * A note on the version number - this only represents that this release is not
   backwards compatible with 0.0.0, not some new level of stability.
