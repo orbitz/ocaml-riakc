@@ -4,31 +4,19 @@ CAMLP4=
 OCAMLC_OPTS=-package riakc
 OCAMLOPT_OPTS=$(OCAMLC_OPTS)
 
-cources=ping.ml client_id.ml server_info.ml \
+NON_LIB_MODULES=ping.ml client_id.ml server_info.ml \
 	list_buckets.ml list_keys.ml bucket_props.ml \
 	get.ml put.ml delete.ml
 
-sources=$(cources)
+native_bin=$(NON_LIB_MODULES:%.ml=%.native)
 
-sources_mli=$(cources:%.ml=%.mli)
+byte_bin=$(NON_LIB_MODULES:%.ml=%.byte)
 
-native_cmx=$(sources:%.ml=%.cmx)
+.PHONY: all native-code byte-code test clean
 
-byte_cmo=$(sources:%.ml=%.cmo)
+all: native-code byte-code
 
-native_cmi=$(sources_mli:%.mli=%.cmi)
-
-native_bin=$(cources:%.ml=%.native)
-
-byte_bin=$(cources:%.ml=%.byte)
-
-.PHONY: all native byte native-code byte-code test clean
-
-all: native byte
-
-native-code: native
-
-native: $(native_bin)
+native-code: $(native_bin)
 
 ping.native: ping.cmx
 
@@ -48,9 +36,7 @@ put.native: put.cmx
 
 delete.native: delete.cmx
 
-byte-code: byte
-
-byte: $(byte_bin)
+byte-code: $(byte_bin)
 
 ping.byte: ping.cmo
 
