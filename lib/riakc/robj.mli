@@ -5,6 +5,7 @@ type 'a t
 module Usermeta : sig
   type t
 
+  val create    : k:string -> v:string option -> t
   val key       : t -> string
   val value     : t -> string option
   val set_key   : string -> t -> t
@@ -19,6 +20,7 @@ module Index : sig
 
   type t
 
+  val create    : k:string -> v:idx -> t
   val key       : t -> string
   val value     : t -> idx
   val set_key   : string -> t -> t
