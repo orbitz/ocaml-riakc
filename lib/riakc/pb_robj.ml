@@ -58,7 +58,7 @@ module Content = struct
 	   ; last_mod         : Int32.t option
 	   ; last_mod_usec    : Int32.t option
 	   ; usermeta         : Pair.t list
-	   ; indexes          : Pair.t list
+	   ; indices          : Pair.t list
 	   ; deleted          : bool option
 	   }
 
@@ -72,7 +72,7 @@ module Content = struct
     P.int32_opt     7            >>= fun last_mod ->
     P.int32_opt     8            >>= fun last_mod_usec ->
     P.embd_msg_rep  9 Pair.parse >>= fun usermeta ->
-    P.embd_msg_rep 10 Pair.parse >>= fun indexes ->
+    P.embd_msg_rep 10 Pair.parse >>= fun indices ->
     P.bool_opt     11            >>= fun deleted ->
     P.return { value
 	     ; content_type
@@ -83,7 +83,7 @@ module Content = struct
 	     ; last_mod
 	     ; last_mod_usec
 	     ; usermeta
-	     ; indexes
+	     ; indices
 	     ; deleted
 	     }
 
@@ -99,7 +99,7 @@ module Content = struct
     B.int32_opt    b  7 t.last_mod                 >>= fun () ->
     B.int32_opt    b  8 t.last_mod_usec            >>= fun () ->
     B.embd_msg_rep b  9 t.usermeta Pair.build      >>= fun () ->
-    B.embd_msg_rep b 10 t.indexes Pair.build       >>= fun () ->
+    B.embd_msg_rep b 10 t.indices Pair.build       >>= fun () ->
     B.bool_opt     b 11 (option_of_bool t.deleted) >>= fun () ->
     Ok (B.to_string b)
 end

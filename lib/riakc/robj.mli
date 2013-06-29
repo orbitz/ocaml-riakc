@@ -51,7 +51,7 @@ module Content : sig
   val last_mod             : t -> Int32.t option
   val last_mod_usec        : t -> Int32.t option
   val usermeta             : t -> Usermeta.t list
-  val indexes              : t -> Index.t list
+  val indices              : t -> Index.t list
   val deleted              : t -> bool
 
   val set_value            : string -> t -> t
@@ -63,7 +63,7 @@ module Content : sig
   val set_last_mod         : Int32.t option -> t -> t
   val set_last_mod_usec    : Int32.t option -> t -> t
   val set_usermeta         : Usermeta.t list -> t -> t
-  val set_indexes          : Index.t list -> t -> t
+  val set_indices          : Index.t list -> t -> t
 
   val to_pb : t -> Pb_robj.Content.t
   val of_pb : Pb_robj.Content.t -> t
