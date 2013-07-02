@@ -8,11 +8,24 @@ let hex_of_string =
   String.concat_map ~f:(fun c -> sprintf "%X" (Char.to_int c))
 
 let print_usermeta content =
-  let module P = Riakc.Robj.Pair in
+  let module U = Riakc.Robj.Usermeta in
   List.iter
-    ~f:(fun p ->
-      printf "USERMETA: %s = %s\n" (P.key p) (option_to_string (P.value p)))
+    ~f:(fun u ->
+      printf "USERMETA: %s = %s\n" (U.key u) (option_to_string (U.value u)))
     (Riakc.Robj.Content.usermeta content)
+
+let print_indices content =
+  let module I = Riakc.Robj.Index in
+  let index_value_to_string = function
+    | I.String s  -> "String " ^ s
+    | I.Integer i -> "Integer " ^ (Int.to_string i)
+    | I.Bad_int s -> "Bad_int " ^ s
+    | I.Unknown s -> "Unknown " ^ s
+  in
+  List.iter
+    ~f:(fun i ->
+      printf "INDEX: %s = %s\n" (I.key i) (index_value_to_string (I.value i)))
+    (Riakc.Robj.Content.indices content)
 
 let print_value content =
   let value = Riakc.Robj.Content.value content in
@@ -28,6 +41,7 @@ let print_contents =
       printf "CHARSET: %s\n" (option_to_string (C.charset content));
       printf "CONTENT_ENCODING: %s\n" (option_to_string (C.content_encoding content));
       print_usermeta content;
+      print_indices content;
       print_value content)
 
 let fail s =

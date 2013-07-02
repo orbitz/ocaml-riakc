@@ -4,19 +4,73 @@ let option_of_bool = function
   | true  -> Some true
   | false -> None
 
-module Pair = struct
+let int_of_string i = Option.try_with (fun () -> Int.of_string i)
+
+module Usermeta = struct
   type t = { key : string
 	   ; value : string option
 	   }
 
+  let create ~k ~v = { key = k; value = v }
+
   let key t   = t.key
   let value t = t.value
+
+  let set_key s t = {t with key = s}
+  let set_value so t = {t with value = so}
 
   let of_pb { Pb_robj.Pair.key; value } =
     { key; value }
 
   let to_pb { key; value } =
     { Pb_robj.Pair.key; value }
+
+end
+
+module Index = struct
+  type idx = | String  of string
+	     | Integer of int
+	     | Bad_int of string
+	     | Unknown of string
+
+  type t = { key : string
+	   ; value : idx
+	   }
+
+  let create ~k ~v = { key = k; value = v }
+
+  let key t   = t.key
+  let value t = t.value
+
+  let set_key s t = {t with key = s}
+  let set_value idx t = {t with value = idx}
+
+  let of_pb { Pb_robj.Pair.key; value } =
+    let value = Option.value ~default:"" value in
+    match String.rsplit2 ~on:'_' key with
+      | Some (k, "bin") ->
+	{ key = k; value = String value }
+      | Some (k, "int") -> begin
+	match int_of_string value with
+	  | Some i ->
+	    { key = k; value = Integer i }
+	  | None ->
+	    { key = k; value = Bad_int value }
+      end
+      | Some (_, _) ->
+	{ key; value = Unknown value }
+      | None ->
+	{ key; value = Unknown value }
+
+  let to_pb = function
+    | { key; value = String s } ->
+      { Pb_robj.Pair.key = key ^ "_bin"; value = Some s }
+    | { key; value = Integer i } ->
+      { Pb_robj.Pair.key = key ^ "_int"; value = Some (Int.to_string i) }
+    | { key; value = Bad_int s } ->
+      { Pb_robj.Pair.key; value = Some s }
+    | { key; value = Unknown s } ->
+      { Pb_robj.Pair.key; value = Some s }
 
 end
 
@@ -58,8 +112,8 @@ module Content = struct
 	   ; links            : Link.t list
 	   ; last_mod         : Int32.t option
 	   ; last_mod_usec    : Int32.t option
-	   ; usermeta         : Pair.t list
-	   ; indexes          : Pair.t list
+	   ; usermeta         : Usermeta.t list
+	   ; indices          : Index.t list
 	   ; deleted          : bool
 	   }
 
@@ -73,8 +127,8 @@ module Content = struct
     ; links            = List.map ~f:Link.of_pb pb.C.links
     ; last_mod         = pb.C.last_mod
     ; last_mod_usec    = pb.C.last_mod_usec
-    ; usermeta         = List.map ~f:Pair.of_pb pb.C.usermeta
-    ; indexes          = List.map ~f:Pair.of_pb pb.C.indexes
+    ; usermeta         = List.map ~f:Usermeta.of_pb pb.C.usermeta
+    ; indices          = List.map ~f:Index.of_pb pb.C.indices
     ; deleted          = Option.value ~default:false pb.C.deleted
     }
 
@@ -88,8 +142,8 @@ module Content = struct
     ;   links            = List.map ~f:Link.to_pb c.links
     ;   last_mod         = c.last_mod
     ;   last_mod_usec    = c.last_mod_usec
-    ;   usermeta         = List.map ~f:Pair.to_pb c.usermeta
-    ;   indexes          = List.map ~f:Pair.to_pb c.indexes
+    ;   usermeta         = List.map ~f:Usermeta.to_pb c.usermeta
+    ;   indices          = List.map ~f:Index.to_pb c.indices
     ;   deleted          = option_of_bool c.deleted
     }
 
@@ -103,7 +157,7 @@ module Content = struct
     ; last_mod         = None
     ; last_mod_usec    = None
     ; usermeta         = []
-    ; indexes          = []
+    ; indices          = []
     ; deleted          = false
     }
 
@@ -116,7 +170,7 @@ module Content = struct
   let last_mod t         = t.last_mod
   let last_mod_usec t    = t.last_mod_usec
   let usermeta t         = t.usermeta
-  let indexes t          = t.indexes
+  let indices t          = t.indices
   let deleted t          = t.deleted
 
   let set_value v t             = { t with value = v }
@@ -128,7 +182,7 @@ module Content = struct
   let set_last_mod lm t         = { t with last_mod = lm }
   let set_last_mod_usec lmu t   = { t with last_mod_usec = lmu }
   let set_usermeta u t          = { t with usermeta = u }
-  let set_indexes i t           = { t with indexes = i }
+  let set_indices i t           = { t with indices = i }
 
 
 end

@@ -2,11 +2,29 @@ open Core.Std
 
 type 'a t
 
-module Pair : sig
+module Usermeta : sig
   type t
 
-  val key   : t -> string
-  val value : t -> string option
+  val create    : k:string -> v:string option -> t
+  val key       : t -> string
+  val value     : t -> string option
+  val set_key   : string -> t -> t
+  val set_value : string option -> t -> t
+end
+
+module Index : sig
+  type idx = | String  of string
+	     | Integer of int
+	     | Bad_int of string
+	     | Unknown of string
+
+  type t
+
+  val create    : k:string -> v:idx -> t
+  val key       : t -> string
+  val value     : t -> idx
+  val set_key   : string -> t -> t
+  val set_value : idx -> t -> t
 end
 
 module Link : sig
@@ -34,8 +52,8 @@ module Content : sig
   val links                : t -> Link.t list
   val last_mod             : t -> Int32.t option
   val last_mod_usec        : t -> Int32.t option
-  val usermeta             : t -> Pair.t list
-  val indexes              : t -> Pair.t list
+  val usermeta             : t -> Usermeta.t list
+  val indices              : t -> Index.t list
   val deleted              : t -> bool
 
   val set_value            : string -> t -> t
@@ -46,11 +64,11 @@ module Content : sig
   val set_links            : Link.t list -> t -> t
   val set_last_mod         : Int32.t option -> t -> t
   val set_last_mod_usec    : Int32.t option -> t -> t
-  val set_usermeta         : Pair.t list -> t -> t
-  val set_indexes          : Pair.t list -> t -> t
+  val set_usermeta         : Usermeta.t list -> t -> t
+  val set_indices          : Index.t list -> t -> t
 
   val to_pb : t -> Pb_robj.Content.t
-  val of_pb : Pb_robj.Content.t ->  t
+  val of_pb : Pb_robj.Content.t -> t
 end
 
 val of_pb :

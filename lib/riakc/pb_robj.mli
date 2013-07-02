@@ -29,7 +29,7 @@ module Content : sig
 	   ; last_mod         : Int32.t option
 	   ; last_mod_usec    : Int32.t option
 	   ; usermeta         : Pair.t list
-	   ; indexes          : Pair.t list
+	   ; indices          : Pair.t list
 	   ; deleted          : bool option
 	   }
 
