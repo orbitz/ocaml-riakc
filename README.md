@@ -12,6 +12,11 @@ https://github.com/orbitz/ocaml-riakc/issues/
 
 ### Release Notes
 
+#### 2.0.0
+
+* Add support for setting 2i in an object.  Indices and Usermeta data types have
+  been renamed.  Querying by 2i is not yet supporrted.
+
 #### 1.0.0
 
 * Requires Core >= 109.12.00 due to Async change and Ocaml >= 4.00
