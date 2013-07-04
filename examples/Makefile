@@ -6,7 +6,7 @@ OCAMLOPT_OPTS=$(OCAMLC_OPTS)
 
 NON_LIB_MODULES=ping.ml client_id.ml server_info.ml \
 	list_buckets.ml list_keys.ml bucket_props.ml \
-	get.ml put.ml delete.ml
+	get.ml put.ml delete.ml demo1.ml
 
 native_bin=$(NON_LIB_MODULES:%.ml=%.native)
 
@@ -36,6 +36,8 @@ put.native: put.cmx
 
 delete.native: delete.cmx
 
+demo1.native: demo1.cmx
+
 byte-code: $(byte_bin)
 
 ping.byte: ping.cmo
@@ -55,6 +57,8 @@ get.byte: get.cmo
 put.byte: put.cmo
 
 delete.byte: delete.cmo
+
+demo1.byte: demo1.cmo
 
 test:
 
