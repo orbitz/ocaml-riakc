@@ -41,7 +41,7 @@ let rec read_response r f =
 
 let do_request t g f =
   let open Deferred.Result.Monad_infix in
-  Deferred.return (g ())    >>= fun request ->
+  Deferred.return (g ()) >>= fun request ->
   Writer.write t.w request;
   read_response t.r f
 
