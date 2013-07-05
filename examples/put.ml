@@ -94,7 +94,7 @@ let exec () =
     ~port
     (fun c ->
       let module R = Riakc.Robj in
-      let robj = R.set_content (R.Content.create v) (R.create []) in
+      let robj = R.create (R.Content.create v) in
       let robj = add_2i robj 6 in
       Riakc.Conn.put c ~b ~k ~opts:[Riakc.Opts.Put.Return_body] robj)
 

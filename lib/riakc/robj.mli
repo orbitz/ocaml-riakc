@@ -79,7 +79,7 @@ val of_pb :
 
 val to_pb : 'a t -> (Pb_robj.Content.t list * string option)
 
-val create       : Content.t list -> [ `Maybe_siblings ] t
+val create       : Content.t -> [ `No_siblings ] t
 val contents     : 'a t -> Content.t list
 val content      : [ `No_siblings ] t -> Content.t
 val vclock       : 'a t -> string option
