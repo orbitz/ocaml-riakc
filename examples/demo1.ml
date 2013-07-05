@@ -41,7 +41,7 @@ let exec () =
     (fun c ->
       let module R = Riakc.Robj in
       let content  = R.Content.create "some random data" in
-      let robj     = R.create [] |> R.set_content content in
+      let robj     = R.create content in
       (*
        * Put takes a bucket, a key, and an optional list of
        * options.  In this case we are setting the

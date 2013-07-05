@@ -202,8 +202,8 @@ let of_pb contents vclock unchanged =
 let to_pb t =
   (List.map ~f:Content.to_pb t.contents, t.vclock)
 
-let create cs =
-  { contents  = cs
+let create c =
+  { contents  = [c]
   ; vclock    = None
   ; unchanged = false
   }
