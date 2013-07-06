@@ -222,3 +222,72 @@ module Delete = struct
       ~init:d
       opts
 end
+
+module Index_search = struct
+  type error = [ `Bad_conn | Response.error ]
+
+  module Field_type = struct
+    type t =
+      | Integer of int
+      | String  of string
+  end
+
+  module Range_query = struct
+    type 'a t = { min          : 'a
+		; max          : 'a
+		; return_terms : bool
+		}
+  end
+
+  module Query_type = struct
+    type 'a t =
+      | Eq           of 'a
+      | Range        of 'a Range_query.t
+  end
+
+  module Kontinuation = struct
+    type t = string
+
+    let of_string s = s
+    let to_string t = t
+  end
+
+  type t =
+    | Timeout      of int
+    | Max_results  of Int32.t
+    | Stream
+    | Continuation of Kontinuation.t
+
+  type index_search = { bucket       : string
+		      ; index        : string
+		      ; query_type   : Field_type.t Query_type.t
+		      ; max_results  : Int32.t option
+		      ; stream       : bool
+		      ; continuation : Kontinuation.t option
+		      ; timeout      : int option
+		      }
+
+  let index_search_of_opts opts ~b ~index ~query_type =
+    let idx_s = { bucket       = b
+		; index        = index
+		; query_type   = query_type
+		; max_results  = None
+		; stream       = false
+		; continuation = None
+		; timeout      = None
+		}
+    in
+    List.fold_left
+      ~f:(fun idx_s -> function
+	| Timeout _ ->
+	  idx_s
+	| Max_results n ->
+	  { idx_s with max_results = Some n }
+	| Stream ->
+	  { idx_s with stream = true }
+	| Continuation k ->
+	  { idx_s with continuation = Some k })
+      ~init:idx_s
+      opts
+
+end

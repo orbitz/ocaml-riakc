@@ -14,6 +14,11 @@ type props = { n_val      : int option
 	     ; allow_mult : bool option
 	     }
 
+type index_search = { keys         : string list
+		    ; results      : (string * string option) list
+		    ; continuation : string option
+		    }
+
 let parse_mc s =
   let bits = Bitstring.bitstring_of_string s in
   let module Int32 = Old_int32 in
@@ -101,6 +106,20 @@ let delete = function
     Ok (Done ())
   | _ ->
     Error `Bad_payload
+
+let index_search payload =
+  let open Result.Monad_infix in
+  run '\x20' payload Pb_response.index_search >>= fun (ks, rs, cont, _d) ->
+  Ok (Done { keys = ks; results = rs; continuation = cont })
+
+let index_search_stream payload =
+  let open Result.Monad_infix in
+  run '\x20' payload Pb_response.index_search >>= function
+    | (ks, rs, _, Some false)
+    | (ks, rs, _, None) ->
+      Ok (More { keys = ks; results = rs; continuation = None })
+    | (ks, rs, cont, Some true) ->
+      Ok (Done { keys = ks; results = rs; continuation = cont })
 
 let parse_length s =
   let bits = Bitstring.bitstring_of_string s in

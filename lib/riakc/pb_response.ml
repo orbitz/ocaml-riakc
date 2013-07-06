@@ -4,6 +4,9 @@ module P = Protobuf.Parser
 
 open P.Monad_infix
 
+type pair = (string * string option)
+type keys = string list
+
 let client_id =
   P.bytes 1 >>= P.return
 
@@ -42,3 +45,15 @@ let put =
   P.bytes_opt    2                       >>= fun vclock ->
   P.bytes_opt    3                       >>= fun key ->
   P.return (contents, vclock, key)
+
+let pair =
+  P.bytes     1 >>= fun key ->
+  P.bytes_opt 2 >>= fun value ->
+  P.return (key, value)
+
+let index_search =
+  P.bytes_rep    1      >>= fun keys ->
+  P.embd_msg_rep 2 pair >>= fun results ->
+  P.bytes_opt    3      >>= fun cont ->
+  P.bool_opt     4      >>= fun d ->
+  P.return (keys, results, cont, d)

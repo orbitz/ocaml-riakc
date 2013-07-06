@@ -9,3 +9,8 @@ val bucket_props : string -> unit -> (string, [> Protobuf.Builder.error ]) Resul
 val get          : Opts.Get.get -> unit -> (string, [> Protobuf.Builder.error ]) Result.t
 val put          : Opts.Put.put -> unit -> (string, [> Protobuf.Builder.error ]) Result.t
 val delete       : Opts.Delete.delete -> unit -> (string, [> Protobuf.Builder.error ]) Result.t
+
+val index_search :
+  Opts.Index_search.index_search ->
+  unit ->
+  (string, [> Protobuf.Builder.error ]) Result.t
