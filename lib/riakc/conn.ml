@@ -188,7 +188,7 @@ let delete t ?(opts = []) ~b k =
     | Error err ->
       Error err
 
-let index_search t ?(opts = []) ~b ~index ~query_type =
+let index_search t ?(opts = []) ~b ~index query_type =
   let idx_s =
     Opts.Index_search.index_search_of_opts
       opts
