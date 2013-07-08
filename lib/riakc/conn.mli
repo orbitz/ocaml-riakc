@@ -45,3 +45,11 @@ val delete :
   b:string ->
   string ->
   (unit, [> Opts.Delete.error ]) Deferred.Result.t
+
+val index_search :
+  t ->
+  ?opts:Opts.Index_search.t list ->
+  b:string ->
+  index:string ->
+  Opts.Index_search.Field_type.t Opts.Index_search.Query_type.t ->
+  (Response.index_search list, [> Opts.Index_search.error ]) Deferred.Result.t

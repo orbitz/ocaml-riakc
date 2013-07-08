@@ -4,7 +4,7 @@ OCAMLC_OPTS=-package core,async,async_core,async_unix,bitstring,bitstring.syntax
 	-syntax camlp4o
 OCAMLOPT_OPTS=$(OCAMLC_OPTS)
 
-LIB_MODULES=pb_robj.ml pb_response.ml robj.ml request.ml response.ml opts.ml conn.ml
+LIB_MODULES=pb_robj.ml pb_response.ml robj.ml opts.ml request.ml response.ml conn.ml
 
 BYTE_TARGETS=riakc.cma
 NATIVE_TARGETS=riakc.cmxa

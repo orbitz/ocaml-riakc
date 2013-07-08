@@ -92,3 +92,80 @@ let delete d () =
   B.int32_opt b 8 d.pw     >>= fun () ->
   B.int32_opt b 9 d.dw     >>= fun () ->
   Ok (wrap_request '\x0D' (B.to_string b))
+
+let index_search idx_s () =
+  let open Opts.Index_search in
+  let determine_index idx_s =
+    match idx_s.query_type with
+      | Query_type.Eq (Field_type.Integer _) ->
+	idx_s.index ^ "_int"
+      | Query_type.Eq (Field_type.String _) ->
+	idx_s.index ^ "_bin"
+      | Query_type.Range { Range_query.min = Field_type.Integer _ } ->
+	idx_s.index ^ "_int"
+      | Query_type.Range { Range_query.min = Field_type.String _ } ->
+	idx_s.index ^ "_bin"
+  in
+  let determine_key idx_s =
+    match idx_s.query_type with
+      | Query_type.Eq (Field_type.Integer i) ->
+	Some (Int.to_string i)
+      | Query_type.Eq (Field_type.String s) ->
+	Some s
+      | Query_type.Range _ ->
+	None
+  in
+  let determine_min idx_s =
+    match idx_s.query_type with
+      | Query_type.Range { Range_query.min = Field_type.Integer min_i } ->
+	Some (Int.to_string min_i)
+      | Query_type.Range { Range_query.min = Field_type.String min_s } ->
+	Some min_s
+      | Query_type.Eq _ ->
+	None
+  in
+  let determine_max idx_s =
+    match idx_s.query_type with
+      | Query_type.Range { Range_query.max = Field_type.Integer max_i } ->
+	Some (Int.to_string max_i)
+      | Query_type.Range { Range_query.max = Field_type.String max_s } ->
+	Some max_s
+      | Query_type.Eq _ ->
+	None
+  in
+  let determine_rt idx_s =
+    match idx_s.query_type with
+      | Query_type.Range r ->
+	Some r.Range_query.return_terms
+      | Query_type.Eq _ ->
+	None
+  in
+  let determine_cont idx_s =
+    Option.map ~f:Kontinuation.to_string idx_s.continuation
+  in
+  let query_type_conv = function
+    | Query_type.Eq _ ->
+      Ok 0
+    | Query_type.Range _ ->
+      Ok 1
+  in
+  let idx  = determine_index idx_s in
+  let key  = determine_key   idx_s in
+  let min  = determine_min   idx_s in
+  let max  = determine_max   idx_s in
+  let rt   = determine_rt    idx_s in
+  let cont = determine_cont  idx_s in
+  let b    = B.create () in
+  let open Result.Monad_infix in
+  B.bytes     b  1 idx_s.bucket                     >>= fun () ->
+  B.bytes     b  2 idx                              >>= fun () ->
+  B.enum      b  3 idx_s.query_type query_type_conv >>= fun () ->
+  B.bytes_opt b  4 key                              >>= fun () ->
+  B.bytes_opt b  5 min                              >>= fun () ->
+  B.bytes_opt b  6 max                              >>= fun () ->
+  B.bool_opt  b  7 rt                               >>= fun () ->
+  B.bool      b  8 idx_s.stream                     >>= fun () ->
+  B.int32_opt b  9 idx_s.max_results                >>= fun () ->
+  B.bytes_opt b 10 cont                             >>= fun () ->
+  Ok (wrap_request '\x19' (B.to_string b))
+
