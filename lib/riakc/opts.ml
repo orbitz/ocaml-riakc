@@ -226,23 +226,29 @@ end
 module Index_search = struct
   type error = [ `Bad_conn | Response.error ]
 
-  module Field_type = struct
+  module Query = struct
+    type 'a range = { min          : 'a
+		    ; max          : 'a
+		    ; return_terms : bool
+		    }
+
     type t =
-      | Integer of int
-      | String  of string
-  end
+      | Eq_string    of string
+      | Eq_int       of int
+      | Range_string of string range
+      | Range_int    of int range
 
-  module Range_query = struct
-    type 'a t = { min          : 'a
-		; max          : 'a
-		; return_terms : bool
-		}
-  end
+    let eq_string key =
+      Eq_string key
 
-  module Query_type = struct
-    type 'a t =
-      | Eq           of 'a
-      | Range        of 'a Range_query.t
+    let eq_int key =
+      Eq_int key
+
+    let range_string ~min ~max ~return_terms =
+      Range_string { min; max; return_terms }
+
+    let range_int ~min ~max ~return_terms =
+      Range_int { min; max; return_terms }
   end
 
   module Kontinuation = struct
@@ -260,7 +266,7 @@ module Index_search = struct
 
   type index_search = { bucket       : string
 		      ; index        : string
-		      ; query_type   : Field_type.t Query_type.t
+		      ; query_type   : Query.t
 		      ; max_results  : Int32.t option
 		      ; stream       : bool
 		      ; continuation : Kontinuation.t option

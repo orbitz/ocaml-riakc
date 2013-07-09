@@ -97,56 +97,62 @@ let index_search idx_s () =
   let open Opts.Index_search in
   let determine_index idx_s =
     match idx_s.query_type with
-      | Query_type.Eq (Field_type.Integer _) ->
+      | Query.Eq_int _
+      | Query.Range_int _ ->
 	idx_s.index ^ "_int"
-      | Query_type.Eq (Field_type.String _) ->
-	idx_s.index ^ "_bin"
-      | Query_type.Range { Range_query.min = Field_type.Integer _ } ->
-	idx_s.index ^ "_int"
-      | Query_type.Range { Range_query.min = Field_type.String _ } ->
+      | Query.Eq_string _
+      | Query.Range_string _ ->
 	idx_s.index ^ "_bin"
   in
   let determine_key idx_s =
     match idx_s.query_type with
-      | Query_type.Eq (Field_type.Integer i) ->
+      | Query.Eq_int i ->
 	Some (Int.to_string i)
-      | Query_type.Eq (Field_type.String s) ->
+      | Query.Eq_string s ->
 	Some s
-      | Query_type.Range _ ->
+      | Query.Range_int _
+      | Query.Range_string _ ->
 	None
   in
   let determine_min idx_s =
     match idx_s.query_type with
-      | Query_type.Range { Range_query.min = Field_type.Integer min_i } ->
+      | Query.Range_int { Query.min = min_i } ->
 	Some (Int.to_string min_i)
-      | Query_type.Range { Range_query.min = Field_type.String min_s } ->
+      | Query.Range_string { Query.min = min_s } ->
 	Some min_s
-      | Query_type.Eq _ ->
+      | Query.Eq_int _
+      | Query.Eq_string _ ->
 	None
   in
   let determine_max idx_s =
     match idx_s.query_type with
-      | Query_type.Range { Range_query.max = Field_type.Integer max_i } ->
+      | Query.Range_int { Query.max = max_i } ->
 	Some (Int.to_string max_i)
-      | Query_type.Range { Range_query.max = Field_type.String max_s } ->
+      | Query.Range_string { Query.max = max_s } ->
 	Some max_s
-      | Query_type.Eq _ ->
+      | Query.Eq_int _
+      | Query.Eq_string _ ->
 	None
   in
   let determine_rt idx_s =
     match idx_s.query_type with
-      | Query_type.Range r ->
-	Some r.Range_query.return_terms
-      | Query_type.Eq _ ->
+      | Query.Range_string r ->
+	Some r.Query.return_terms
+      | Query.Range_int r ->
+	Some r.Query.return_terms
+      | Query.Eq_string _
+      | Query.Eq_int _ ->
 	None
   in
   let determine_cont idx_s =
     Option.map ~f:Kontinuation.to_string idx_s.continuation
   in
   let query_type_conv = function
-    | Query_type.Eq _ ->
+    | Query.Eq_string _
+    | Query.Eq_int _ ->
       Ok 0
-    | Query_type.Range _ ->
+    | Query.Range_string _
+    | Query.Range_int _ ->
       Ok 1
   in
   let idx  = determine_index idx_s in
