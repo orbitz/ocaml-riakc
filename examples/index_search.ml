@@ -12,21 +12,19 @@ let parse_qt idx =
   let module Is = Riakc.Opts.Index_search in
   match Sys.argv.(idx) with
     | "eq:int" ->
-      Is.Query_type.Eq (Is.Field_type.Integer (Int.of_string (Sys.argv.(idx + 1))))
+      Is.Query.eq_int (Int.of_string (Sys.argv.(idx + 1)))
     | "eq:bin" ->
-      Is.Query_type.Eq (Is.Field_type.String Sys.argv.(idx + 1))
+      Is.Query.eq_string Sys.argv.(idx + 1)
     | "range:int" ->
-      Is.Query_type.Range
-	{ Is.Range_query.min          = Is.Field_type.Integer (Int.of_string (Sys.argv.(idx + 1)))
-	;                max          = Is.Field_type.Integer (Int.of_string (Sys.argv.(idx + 2)))
-	;                return_terms = false
-	}
+      Is.Query.range_int
+	~min:(Int.of_string (Sys.argv.(idx + 1)))
+	~max:(Int.of_string (Sys.argv.(idx + 2)))
+	~return_terms:false
     | "range:bin" ->
-      Is.Query_type.Range
-	{ Is.Range_query.min          = Is.Field_type.String Sys.argv.(idx + 1)
-	;                max          = Is.Field_type.String Sys.argv.(idx + 2)
-	;                return_terms = false
-	}
+      Is.Query.range_string
+	~min:Sys.argv.(idx + 1)
+	~max:Sys.argv.(idx + 2)
+	~return_terms:false
     | search ->
       failwith ("Unknown search: " ^ search)
 

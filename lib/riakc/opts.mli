@@ -96,23 +96,22 @@ end
 module Index_search : sig
   type error = [ `Bad_conn | Response.error ]
 
-  module Field_type : sig
+  module Query : sig
+    type 'a range = { min          : 'a
+		    ; max          : 'a
+		    ; return_terms : bool
+		    }
+
     type t =
-      | Integer of int
-      | String  of string
-  end
+      | Eq_string    of string
+      | Eq_int       of int
+      | Range_string of string range
+      | Range_int    of int range
 
-  module Range_query : sig
-    type 'a t = { min          : 'a
-		; max          : 'a
-		; return_terms : bool
-		}
-  end
-
-  module Query_type : sig
-    type 'a t =
-      | Eq           of 'a
-      | Range        of 'a Range_query.t
+    val eq_string    : string -> t
+    val eq_int       : int -> t
+    val range_string : min:string -> max:string -> return_terms:bool -> t
+    val range_int    : min:int    -> max:int    -> return_terms:bool -> t
   end
 
   module Kontinuation : sig
@@ -130,7 +129,7 @@ module Index_search : sig
 
   type index_search = { bucket       : string
 		      ; index        : string
-		      ; query_type   : Field_type.t Query_type.t
+		      ; query_type   : Query.t
 		      ; max_results  : Int32.t option
 		      ; stream       : bool
 		      ; continuation : Kontinuation.t option
@@ -141,6 +140,6 @@ module Index_search : sig
     t list ->
     b:string ->
     index:string ->
-    query_type:Field_type.t Query_type.t ->
+    query_type:Query.t ->
     index_search
 end
