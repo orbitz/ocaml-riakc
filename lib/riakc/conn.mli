@@ -20,9 +20,13 @@ val server_info :
   t ->
   ((string option * string option), [> error | Response.error ]) Deferred.Result.t
 
-val list_buckets : t -> (string list, [> error | Response.error ]) Deferred.Result.t
-val list_keys    : t -> string -> (string list, [> error | Response.error ]) Deferred.Result.t
 val bucket_props : t -> string -> (Response.props, [> error | Response.error ]) Deferred.Result.t
+val list_buckets : t -> (string list, [> error | Response.error ]) Deferred.Result.t
+
+val list_keys :
+  t ->
+  string ->
+  (string list, [> error | Response.error ]) Deferred.Result.t
 
 val get :
   t ->

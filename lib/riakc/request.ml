@@ -22,6 +22,12 @@ let client_id () =
 let server_info () =
   Ok (wrap_request '\x07' "")
 
+let bucket_props bucket () =
+  let open Result.Monad_infix in
+  let b = B.create () in
+  B.bytes b 1 bucket >>= fun () ->
+  Ok (wrap_request '\x13' (B.to_string b))
+
 let list_buckets () =
   Ok (wrap_request '\x0F' "")
 
@@ -30,12 +36,6 @@ let list_keys bucket () =
   let b = B.create () in
   B.bytes b 1 bucket >>= fun () ->
   Ok (wrap_request '\x11' (B.to_string b))
-
-let bucket_props bucket () =
-  let open Result.Monad_infix in
-  let b = B.create () in
-  B.bytes b 1 bucket >>= fun () ->
-  Ok (wrap_request '\x13' (B.to_string b))
 
 let get g () =
   let open Opts.Get in

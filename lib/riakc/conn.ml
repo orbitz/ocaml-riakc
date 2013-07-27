@@ -108,6 +108,19 @@ let server_info t =
     | Error err ->
       Error err
 
+let bucket_props t bucket =
+  do_request
+    t
+    (Request.bucket_props bucket)
+    Response.bucket_props
+  >>| function
+    | Ok [props] ->
+      Ok props
+    | Ok _ ->
+      Error `Wrong_type
+    | Error err ->
+      Error err
+
 let list_buckets t =
   do_request
     t
@@ -129,19 +142,6 @@ let list_keys t bucket =
   >>| function
     | Ok keys ->
       Ok (List.concat keys)
-    | Error err ->
-      Error err
-
-let bucket_props t bucket =
-  do_request
-    t
-    (Request.bucket_props bucket)
-    Response.bucket_props
-  >>| function
-    | Ok [props] ->
-      Ok props
-    | Ok _ ->
-      Error `Wrong_type
     | Error err ->
       Error err
 
