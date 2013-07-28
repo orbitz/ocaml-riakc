@@ -28,6 +28,12 @@ val list_keys :
   string ->
   (string list, [> error | Response.error ]) Deferred.Result.t
 
+val list_keys_stream :
+  t ->
+  string ->
+  (string list -> unit Deferred.t) ->
+  (unit, [> error | Response.error ]) Deferred.Result.t
+
 val get :
   t ->
   ?opts:Opts.Get.t list ->
