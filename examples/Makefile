@@ -7,7 +7,7 @@ OCAMLOPT_OPTS=$(OCAMLC_OPTS)
 NON_LIB_MODULES=ping.ml client_id.ml server_info.ml \
 	list_buckets.ml list_keys.ml list_keys_stream.ml \
 	bucket_props.ml get.ml put.ml delete.ml \
-	index_search.ml demo1.ml
+	index_search.ml index_search_stream.ml demo1.ml
 
 native_bin=$(NON_LIB_MODULES:%.ml=%.native)
 

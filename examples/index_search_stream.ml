@@ -28,33 +28,32 @@ let parse_qt idx =
     | search ->
       failwith ("Unknown search: " ^ search)
 
-let exec () =
-  let host  = Sys.argv.(1) in
-  let port  = Int.of_string Sys.argv.(2) in
-  let b     = Sys.argv.(3) in
-  let index = Sys.argv.(4) in
-  let qt    = parse_qt 5   in
-  Riakc.Conn.with_conn
-    ~host
-    ~port
-    (fun c ->
-      Riakc.Conn.index_search
-	c
-	~b
-	~index
-	qt)
-
 let print_keys results =
   List.iter
     ~f:(printf "%s\n")
     results.Riakc.Response.keys
 
+let exec () =
+  let host       = Sys.argv.(1) in
+  let port       = Int.of_string Sys.argv.(2) in
+  let b          = Sys.argv.(3) in
+  let index      = Sys.argv.(4) in
+  let qt         = parse_qt 5   in
+  let consumer r = print_keys r; Deferred.return () in
+  Riakc.Conn.with_conn
+    ~host
+    ~port
+    (fun c ->
+      Riakc.Conn.index_search_stream
+	c
+	~b
+	~index
+	~consumer
+	qt)
+
 let eval () =
   exec () >>| function
-    | Ok results -> begin
-      print_keys results;
-      shutdown 0
-    end
+    | Ok ()                     -> shutdown 0
     | Error `Bad_conn           -> fail "Bad_conn"
     | Error `Bad_payload        -> fail "Bad_payload"
     | Error `Incomplete_payload -> fail "Incomplete_payload"

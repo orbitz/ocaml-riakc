@@ -221,14 +221,29 @@ let index_search t ?(opts = []) ~b ~index query_type =
       ~index
       ~query_type
   in
-  let response =
-    if idx_s.Opts.Index_search.stream then
-      Response.index_search_stream
-    else
-      Response.index_search
-  in
   do_request
     t
-    (Request.index_search idx_s)
-    response
+    (Request.index_search ~stream:false idx_s)
+    Response.index_search
+  >>| function
+    | Ok [results] ->
+      Ok results
+    | Ok _ ->
+      Error `Wrong_type
+    | Error err ->
+      Error err
+
+let index_search_stream t ?(opts = []) ~b ~index ~consumer query_type =
+  let idx_s =
+    Opts.Index_search.index_search_of_opts
+      opts
+      ~b
+      ~index
+      ~query_type
+  in
+  do_request_stream
+    t
+    consumer
+    (Request.index_search ~stream:true idx_s)
+    Response.index_search
 

@@ -11,6 +11,8 @@ val put          : Opts.Put.put -> unit -> (string, [> Protobuf.Builder.error ])
 val delete       : Opts.Delete.delete -> unit -> (string, [> Protobuf.Builder.error ]) Result.t
 
 val index_search :
+  stream:bool ->
   Opts.Index_search.index_search ->
   unit ->
   (string, [> Protobuf.Builder.error ]) Result.t
+

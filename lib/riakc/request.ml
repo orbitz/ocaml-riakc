@@ -93,7 +93,7 @@ let delete d () =
   B.int32_opt b 9 d.dw     >>= fun () ->
   Ok (wrap_request '\x0D' (B.to_string b))
 
-let index_search idx_s () =
+let index_search ~stream idx_s () =
   let open Opts.Index_search in
   let determine_index idx_s =
     match idx_s.query_type with
@@ -170,7 +170,7 @@ let index_search idx_s () =
   B.bytes_opt b  5 min                              >>= fun () ->
   B.bytes_opt b  6 max                              >>= fun () ->
   B.bool_opt  b  7 rt                               >>= fun () ->
-  B.bool      b  8 idx_s.stream                     >>= fun () ->
+  B.bool      b  8 stream                           >>= fun () ->
   B.int32_opt b  9 idx_s.max_results                >>= fun () ->
   B.bytes_opt b 10 cont                             >>= fun () ->
   Ok (wrap_request '\x19' (B.to_string b))

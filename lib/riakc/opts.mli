@@ -124,14 +124,12 @@ module Index_search : sig
   type t =
     | Timeout      of int
     | Max_results  of Int32.t
-    | Stream
     | Continuation of Kontinuation.t
 
   type index_search = { bucket       : string
 		      ; index        : string
 		      ; query_type   : Query.t
 		      ; max_results  : Int32.t option
-		      ; stream       : bool
 		      ; continuation : Kontinuation.t option
 		      ; timeout      : int option
 		      }

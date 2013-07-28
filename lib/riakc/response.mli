@@ -28,8 +28,4 @@ val index_search :
   string ->
   (index_search t, [> error ]) Result.t
 
-val index_search_stream :
-  string ->
-  (index_search t, [> error ]) Result.t
-
 val parse_length : string -> (int, [> error ]) Result.t

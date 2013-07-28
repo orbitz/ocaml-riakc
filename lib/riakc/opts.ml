@@ -261,14 +261,12 @@ module Index_search = struct
   type t =
     | Timeout      of int
     | Max_results  of Int32.t
-    | Stream
     | Continuation of Kontinuation.t
 
   type index_search = { bucket       : string
 		      ; index        : string
 		      ; query_type   : Query.t
 		      ; max_results  : Int32.t option
-		      ; stream       : bool
 		      ; continuation : Kontinuation.t option
 		      ; timeout      : int option
 		      }
@@ -278,7 +276,6 @@ module Index_search = struct
 		; index        = index
 		; query_type   = query_type
 		; max_results  = None
-		; stream       = false
 		; continuation = None
 		; timeout      = None
 		}
@@ -289,8 +286,6 @@ module Index_search = struct
 	  idx_s
 	| Max_results n ->
 	  { idx_s with max_results = Some n }
-	| Stream ->
-	  { idx_s with stream = true }
 	| Continuation k ->
 	  { idx_s with continuation = Some k })
       ~init:idx_s
