@@ -27,23 +27,41 @@ let read_payload r preamble =
   let payload = String.create resp_len in
   read_str r 0 payload
 
-let rec read_response r f =
+let rec read_response r f c =
   let open Deferred.Result.Monad_infix in
   let preamble = String.create 4 in
   read_str r 0 preamble       >>= fun _ ->
   read_payload r preamble     >>= fun payload ->
   Deferred.return (f payload) >>= function
     | Response.More resp ->
-      read_response r f >>= fun more ->
-      Deferred.return (Ok (resp::more))
+      let open Deferred.Monad_infix in
+      c resp >>= fun () ->
+      read_response r f c
     | Response.Done resp ->
-      Deferred.return (Ok [resp])
+      let open Deferred.Monad_infix in
+      c resp >>= fun () ->
+      Deferred.return (Ok ())
 
-let do_request t g f =
+let do_request_stream t c g f =
   let open Deferred.Result.Monad_infix in
   Deferred.return (g ()) >>= fun request ->
   Writer.write t.w request;
-  read_response t.r f
+  read_response t.r f c
+
+let do_request t g f =
+  let open Deferred.Monad_infix in
+  let (r, w) = Pipe.create () in
+  let c x    = Pipe.write_without_pushback w x; Deferred.return () in
+  do_request_stream t c g f >>= function
+    | Ok () -> begin
+      Pipe.close w;
+      Pipe.to_list r >>| fun l ->
+      Ok l
+    end
+    | Error err ->
+      Deferred.return (Error err)
+
+let gen_consumer w = Pipe.write_without_pushback w |> Deferred.return
 
 let connect ~host ~port =
   let connect () =
@@ -108,6 +126,19 @@ let server_info t =
     | Error err ->
       Error err
 
+let bucket_props t bucket =
+  do_request
+    t
+    (Request.bucket_props bucket)
+    Response.bucket_props
+  >>| function
+    | Ok [props] ->
+      Ok props
+    | Ok _ ->
+      Error `Wrong_type
+    | Error err ->
+      Error err
+
 let list_buckets t =
   do_request
     t
@@ -121,6 +152,13 @@ let list_buckets t =
     | Error err ->
       Error err
 
+let list_keys_stream t bucket consumer =
+  do_request_stream
+    t
+    consumer
+    (Request.list_keys bucket)
+    Response.list_keys
+
 let list_keys t bucket =
   do_request
     t
@@ -129,19 +167,6 @@ let list_keys t bucket =
   >>| function
     | Ok keys ->
       Ok (List.concat keys)
-    | Error err ->
-      Error err
-
-let bucket_props t bucket =
-  do_request
-    t
-    (Request.bucket_props bucket)
-    Response.bucket_props
-  >>| function
-    | Ok [props] ->
-      Ok props
-    | Ok _ ->
-      Error `Wrong_type
     | Error err ->
       Error err
 
@@ -196,14 +221,15 @@ let index_search t ?(opts = []) ~b ~index query_type =
       ~index
       ~query_type
   in
-  let response =
-    if idx_s.Opts.Index_search.stream then
-      Response.index_search_stream
-    else
-      Response.index_search
-  in
   do_request
     t
-    (Request.index_search idx_s)
-    response
+    (Request.index_search ~stream:false idx_s)
+    Response.index_search
+  >>| function
+    | Ok [results] ->
+      Ok results
+    | Ok _ ->
+      Error `Wrong_type
+    | Error err ->
+      Error err
 

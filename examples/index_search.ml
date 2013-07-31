@@ -46,11 +46,8 @@ let exec () =
 
 let print_keys results =
   List.iter
-    ~f:(fun rs ->
-      List.iter
-	~f:(printf "%s\n")
-	rs.Riakc.Response.keys)
-    results
+    ~f:(printf "%s\n")
+    results.Riakc.Response.keys
 
 let eval () =
   exec () >>| function

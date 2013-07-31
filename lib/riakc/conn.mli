@@ -20,9 +20,19 @@ val server_info :
   t ->
   ((string option * string option), [> error | Response.error ]) Deferred.Result.t
 
-val list_buckets : t -> (string list, [> error | Response.error ]) Deferred.Result.t
-val list_keys    : t -> string -> (string list, [> error | Response.error ]) Deferred.Result.t
 val bucket_props : t -> string -> (Response.props, [> error | Response.error ]) Deferred.Result.t
+val list_buckets : t -> (string list, [> error | Response.error ]) Deferred.Result.t
+
+val list_keys :
+  t ->
+  string ->
+  (string list, [> error | Response.error ]) Deferred.Result.t
+
+val list_keys_stream :
+  t ->
+  string ->
+  (string list -> unit Deferred.t) ->
+  (unit, [> error | Response.error ]) Deferred.Result.t
 
 val get :
   t ->
@@ -52,4 +62,4 @@ val index_search :
   b:string ->
   index:string ->
   Opts.Index_search.Query.t ->
-  (Response.index_search list, [> Opts.Index_search.error ]) Deferred.Result.t
+  (Response.index_search, [> Opts.Index_search.error ]) Deferred.Result.t
