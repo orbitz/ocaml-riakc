@@ -233,17 +233,3 @@ let index_search t ?(opts = []) ~b ~index query_type =
     | Error err ->
       Error err
 
-let index_search_stream t ?(opts = []) ~b ~index ~consumer query_type =
-  let idx_s =
-    Opts.Index_search.index_search_of_opts
-      opts
-      ~b
-      ~index
-      ~query_type
-  in
-  do_request_stream
-    t
-    consumer
-    (Request.index_search ~stream:true idx_s)
-    Response.index_search
-

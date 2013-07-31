@@ -63,12 +63,3 @@ val index_search :
   index:string ->
   Opts.Index_search.Query.t ->
   (Response.index_search, [> Opts.Index_search.error ]) Deferred.Result.t
-
-val index_search_stream :
-  t ->
-  ?opts:Opts.Index_search.t list ->
-  b:string ->
-  index:string ->
-  consumer:(Response.index_search -> unit Deferred.t) ->
-  Opts.Index_search.Query.t ->
-  (unit, [> Opts.Index_search.error ]) Deferred.Result.t

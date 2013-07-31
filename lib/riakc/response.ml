@@ -107,7 +107,12 @@ let delete = function
   | _ ->
     Error `Bad_payload
 
-let index_search payload =
+ let index_search payload =
+   let open Result.Monad_infix in
+   run '\x1A' payload Pb_response.index_search >>= fun (ks, rs, cont, _d) ->
+   Ok (Done { keys = ks; results = rs; continuation = cont })
+
+let index_search_stream payload =
   let open Result.Monad_infix in
   run '\x1A' payload Pb_response.index_search >>= function
     | (ks, rs, _, Some false)

@@ -7,7 +7,7 @@ OCAMLOPT_OPTS=$(OCAMLC_OPTS)
 NON_LIB_MODULES=ping.ml client_id.ml server_info.ml \
 	list_buckets.ml list_keys.ml list_keys_stream.ml \
 	bucket_props.ml get.ml put.ml delete.ml \
-	index_search.ml index_search_stream.ml demo1.ml
+	index_search.ml demo1.ml
 
 native_bin=$(NON_LIB_MODULES:%.ml=%.native)
 
@@ -28,6 +28,8 @@ server_info.native: server_info.cmx
 list_buckets.native: list_buckets.cmx
 
 list_keys.native: list_keys.cmx
+
+list_keys_stream.native: list_keys_stream.cmx
 
 bucket_props.native: bucket_props.cmx
 
@@ -50,6 +52,8 @@ server_info.byte: server_info.cmo
 list_buckets.byte: list_buckets.cmo
 
 list_keys.byte: list_keys.cmo
+
+list_keys_stream.byte: list_keys_stream.cmo
 
 bucket_props.byte: bucket_props.cmo
 
