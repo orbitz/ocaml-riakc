@@ -1,0 +1,31 @@
+* About
+Riakc is a Protobufs Riak client written in Ocaml built on top of Async from Jane St.
+
+There are examples of using each API command in the example directory.  There is
+also a minor test suite in the tests directory.
+
+The two API entry points are Riakc.Conn and Riakc.Robj.
+* Known Issues
+https://github.com/orbitz/ocaml-riakc/issues/
+* Releases
+** DONE 2.0.0
+   - [X] Add support for setting 2i in an object.  Indices and Usermeta data types have been renamed.  Querying by 2i is not yet supporrted.
+** DONE 1.0.0
+   - [X] Requires Core >= 109.12.00 due to Async change and Ocaml >= 4.00
+   - [X] Links are now supported in GET/PUT
+   - [X] A note on the version number - this only represents that this release is not backwards compatible with 0.0.0, not some new level of stability.
+** DONE 0.0.0
+*** Methods
+    - [X] ping
+    - [X] client_id
+    - [X] server_info
+    - [X] list_buckets
+    - [X] list_keys
+    - [X] bucket_props
+    - [X] get
+    - [X] put
+    - [X] delete
+* Future Features
+  - Timeouts on operations
+  - 2i streaming support
+
