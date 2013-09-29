@@ -8,6 +8,11 @@ The two API entry points are Riakc.Conn and Riakc.Robj.
 * Known Issues
 https://github.com/orbitz/ocaml-riakc/issues/
 * Releases
+This represents only the features that are available in tagged releases.
+** DONE 3.0.0
+   - [X] Streaming support for list_keys
+   - [X] Non-streaming support for 2i searches
+   - [X] Misc API changes
 ** DONE 2.0.0
    - [X] Add support for setting 2i in an object.  Indices and Usermeta data types have been renamed.  Querying by 2i is not yet supporrted.
 ** DONE 1.0.0
