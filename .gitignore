@@ -1,10 +1,6 @@
-*~
-*.cma
-*.a
-*.cmxa
-*.cmo
-*.cmi
-*.cmx
-*.o
-.d
-lib/protobuf/protobuf_test
+.ocamlinit
+_build
+/.omakedb
+/.omakedb.lock
+/OMakeroot.omc
+tmp/
