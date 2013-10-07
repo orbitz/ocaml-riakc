@@ -1,0 +1,160 @@
+open build/Common
+open build/OCaml
+
+.PHONY: lib doc examples tests \
+        install install_lib install_doc \
+        uninstall uninstall_lib \
+        clean distclean \
+        print-paths
+
+################################################################################
+# Primary Commands
+install: install_lib
+uninstall: uninstall_lib
+
+clean:
+  rm -rf _build
+
+distclean: clean
+  rm -rf OMakeroot.omc .omakedb .omakedb.lock
+
+
+################################################################################
+# General Project Information
+PROJECT = riakc
+VERSION = 3.0.1-dev
+LIB_NAME = $(PROJECT)
+APP_NAME = $(PROJECT)
+LIB_DESCRIPTION = Riak client.
+API_DOC_TITLE = "Riak API"
+
+DEPENDENCIES = core async async_core async_unix bitstring bitstring.syntax protobuf
+PACKAGES = $(DEPENDENCIES)
+
+LIB_MODULES[] =
+  $(removesuffix $(basename $(ls lib/riakc/*.ml)))
+
+LIB_SOURCES = $(add-wrapper lib/riakc, .ml, $(LIB_MODULES))
+
+
+################################################################################
+# Directory and File Names
+DEFAULT_PREFIX=_build/usr
+DefineCommandVars()
+
+if $(not $(defined PREFIX))
+  PREFIX = $(DEFAULT_PREFIX)
+  export
+
+if $(not $(defined BIN_DIR))
+  BIN_DIR = $(PREFIX)/bin
+  export
+
+if $(not $(defined DOC_DIR))
+  DOC_DIR = $(PREFIX)/doc
+  export
+
+print-paths:
+  echo "PREFIX = $(PREFIX)"
+  echo "BIN_DIR = $(BIN_DIR)"
+  echo "DOC_DIR = $(DOC_DIR)"
+
+
+################################################################################
+# Build Parameters
+USE_OCAMLFIND = true
+if $(not $(OCAMLFIND_EXISTS))
+   eprintln(Required package ocamlfind not found.)
+   exit 1
+
+NATIVE_ENABLED = $(OCAMLOPT_EXISTS)
+BYTE_ENABLED = $(OCAMLC_EXISTS)
+
+OCAMLFLAGS = -bin-annot -annot -warn-error P -thread
+OCAMLCFLAGS =
+OCAMLOPTFLAGS =
+OCAML_LINK_FLAGS +=
+OCAML_BYTE_LINK_FLAGS =
+OCAML_NATIVE_LINK_FLAGS =
+OCAMLFINDFLAGS = -syntax camlp4o
+OCAMLPACKS[] = $(PACKAGES)
+
+.SUBDIRS: .
+  mkdir -p _build/lib/riakc
+  mkdir -p _build/examples
+  mkdir -p _build/tests
+  mkdir -p _build/doc
+  vmount(-l, lib/, _build/lib/)
+  vmount(-l, examples/, _build/examples/)
+
+  ################################################################################
+  # Library
+  .SUBDIRS: _build/lib/riakc
+
+    META:
+      echo "description = \"$(LIB_DESCRIPTION)\"" > $@
+      echo "version = \"$(VERSION)\"" >> $@
+      echo "archive(byte) = \"$(LIB_NAME).cma\"" >> $@
+      echo "archive(native) = \"$(LIB_NAME).cmxa\"" >> $@
+      echo "requires = \"$(DEPENDENCIES)\"" >> $@
+
+    lib: $(OCamlLibrary $(LIB_NAME), $(LIB_MODULES))
+    .DEFAULT: lib META
+
+    install_lib: $(LIB_NAME).cma $(LIB_NAME).cmxa META uninstall_lib
+      ocamlfind install $(LIB_NAME) META \
+        *.cm[iox] *.o $(LIB_NAME).cma $(LIB_NAME).cmxa *.a
+
+    uninstall_lib:
+      ocamlfind remove $(LIB_NAME)
+
+
+  ################################################################################
+  # Examples
+  .SUBDIRS: _build/examples
+    OCAML_LIBS = ../lib/riakc/$(LIB_NAME)
+    OCAMLINCLUDES += $(dir ../lib/riakc)
+
+    examples: $(OCamlProgram bucket_props, bucket_props) $(OCamlProgram client_id, client_id) $(OCamlProgram delete, delete) $(OCamlProgram demo1, demo1) $(OCamlProgram get, get) $(OCamlProgram index_search, index_search) $(OCamlProgram list_buckets, list_buckets) $(OCamlProgram list_keys, list_keys) $(OCamlProgram list_keys_stream, list_keys_stream) $(OCamlProgram ping, ping) $(OCamlProgram put, put) $(OCamlProgram server_info, server_info)
+    .DEFAULT: examples
+
+
+  ################################################################################
+  # Tests
+  .SUBDIRS: _build/tests
+    OCAML_LIBS = ../lib/riakc/$(LIB_NAME)
+    OCAMLINCLUDES += $(dir ../lib/riakc)
+
+    tests: $(OCamlProgram all_tests, all_tests)
+    .DEFAULT: tests
+
+
+  ################################################################################
+  # API Documentation
+  .SUBDIRS: _build/doc
+    api/index.html: lib
+      rm -rf api
+      mkdir api
+      ocamlfind ocamldoc \
+        $(OCAMLFINDFLAGS) \
+        -package $(concat \,, $(PACKAGES)) \
+        -thread \
+        -charset UTF-8 \
+        -d api \
+        -t $(API_DOC_TITLE) \
+        -keep-code \
+        -colorize-code \
+        -sort \
+        -html \
+        -I ../lib/riakc \
+        ../lib/riakc/*.ml
+
+    doc: api/index.html
+
+  install_doc: doc
+    section
+      X = $(DOC_DIR)/$(PROJECT)
+      echo "Installing documentation in $(X)" >> $(BUILD_SUMMARY)
+      rm -rf $(X)
+      mkdir -p $(X)
+      cp -r _build/doc/api $(X)/

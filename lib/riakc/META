@@ -1,6 +1,0 @@
-name="riakc"
-version="0.0.0"
-description="Riak client"
-requires="core,async,async_core,async_unix,bitstring,bitstring.syntax,protobuf"
-archive(byte)="riakc.cma"
-archive(native)="riakc.cmxa"
