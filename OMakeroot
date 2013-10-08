@@ -88,6 +88,7 @@ OCAMLPACKS[] = $(PACKAGES)
   mkdir -p _build/doc
   vmount(-l, lib/, _build/lib/)
   vmount(-l, examples/, _build/examples/)
+  vmount(-l, tests/, _build/tests/)
 
   ################################################################################
   # Library
@@ -126,8 +127,7 @@ OCAMLPACKS[] = $(PACKAGES)
     OCAML_LIBS = ../lib/riakc/$(LIB_NAME)
     OCAMLINCLUDES += $(dir ../lib/riakc)
 
-    tests: $(OCamlProgram all_tests, all_tests)
-    .DEFAULT: tests
+    .DEFAULT: $(OCamlProgram all_tests, all_tests)
 
 
   ################################################################################
