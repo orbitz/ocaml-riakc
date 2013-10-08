@@ -36,6 +36,8 @@ LIB_MODULES[] =
 
 LIB_SOURCES = $(add-wrapper lib/riakc, .ml, $(LIB_MODULES))
 
+EXAMPLES[] =
+  $(removesuffix $(basename $(ls examples/*.ml)))
 
 ################################################################################
 # Directory and File Names
@@ -114,9 +116,8 @@ OCAMLPACKS[] = $(PACKAGES)
   .SUBDIRS: _build/examples
     OCAML_LIBS = ../lib/riakc/$(LIB_NAME)
     OCAMLINCLUDES += $(dir ../lib/riakc)
-
-    examples: $(OCamlProgram bucket_props, bucket_props) $(OCamlProgram client_id, client_id) $(OCamlProgram delete, delete) $(OCamlProgram demo1, demo1) $(OCamlProgram get, get) $(OCamlProgram index_search, index_search) $(OCamlProgram list_buckets, list_buckets) $(OCamlProgram list_keys, list_keys) $(OCamlProgram list_keys_stream, list_keys_stream) $(OCamlProgram ping, ping) $(OCamlProgram put, put) $(OCamlProgram server_info, server_info)
-    .DEFAULT: examples
+    foreach (example => ..., $(EXAMPLES))
+      .DEFAULT: $(OCamlProgram $(example), $(example))
 
 
   ################################################################################
