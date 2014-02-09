@@ -58,9 +58,8 @@ let list_keys_test c =
   let b = Sys.argv.(3) in
   Rconn.list_keys c b >>= fun keys1 ->
   let robj =
-    Robj.set_content
+    Robj.create
       (Robj.Content.create "foobar")
-      (Robj.create [])
   in
   Rconn.put c ~b ~k:(Rand.key 10) robj >>= fun _ ->
   Rconn.list_keys c b >>= fun keys2 ->
@@ -86,9 +85,8 @@ let get_notfound_test c =
 let get_found_test c =
   let b = Sys.argv.(3) in
   let robj =
-    Robj.set_content
+    Robj.create
       (Robj.Content.create "foobar")
-      (Robj.create [])
   in
   let key = Rand.key 10 in
   Rconn.put c ~b ~k:key robj >>= fun (_, _) ->
@@ -99,9 +97,8 @@ let put_return_body_test c =
   let b = Sys.argv.(3) in
   let open Riakc.Opts.Put in
   let robj =
-    Robj.set_content
+    Robj.create
       (Robj.Content.create "foobar")
-      (Robj.create [])
   in
   let key = Rand.key 10 in
   Rconn.put c ~opts:[Return_body] ~b ~k:key robj            >>= fun (robj', key) ->
