@@ -28,7 +28,7 @@ APP_NAME = $(PROJECT)
 LIB_DESCRIPTION = Riak client.
 API_DOC_TITLE = "Riak API"
 
-DEPENDENCIES = core async async_core async_unix bitstring bitstring.syntax protobuf
+DEPENDENCIES = core async async_unix bitstring bitstring.syntax protobuf
 PACKAGES = $(DEPENDENCIES)
 
 LIB_MODULES[] =
