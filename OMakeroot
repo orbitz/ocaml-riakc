@@ -25,11 +25,12 @@ VERSION = 3.0.1-dev
 LIB_NAME = $(PROJECT)
 LIB_DESCRIPTION = Riak client.
 LIB_MODULES[] =
-  $(removesuffix $(basename $(ls lib/riakc/*.ml)))
+  $(removesuffix $(basename $(ls src/lib/*.ml)))
 LIB_PACKAGES = core async async_unix bitstring.syntax protobuf
 
 EXAMPLES[] =
-  $(removesuffix $(basename $(ls examples/*.ml)))
+  $(removesuffix $(basename $(ls src/examples/*.ml)))
+
 
 ################################################################################
 # Directory and File Names
@@ -74,17 +75,15 @@ OCAMLFINDFLAGS = -syntax camlp4o
 OCAMLPACKS[] = $(LIB_PACKAGES)
 
 .SUBDIRS: .
-  mkdir -p _build/lib/riakc
+  mkdir -p _build/lib
   mkdir -p _build/examples
   mkdir -p _build/tests
   mkdir -p _build/doc
-  vmount(-l, lib/, _build/lib/)
-  vmount(-l, examples/, _build/examples/)
-  vmount(-l, tests/, _build/tests/)
+  vmount(-l, src/, _build/)
 
   ##############################################################################
   # Library
-  .SUBDIRS: _build/lib/riakc
+  .SUBDIRS: _build/lib
 
     META:
       echo "description = \"$(LIB_DESCRIPTION)\"" > $@
@@ -108,8 +107,8 @@ OCAMLPACKS[] = $(LIB_PACKAGES)
   ##############################################################################
   # Examples
   .SUBDIRS: _build/examples
-    OCAML_LIBS = ../lib/riakc/$(LIB_NAME)
-    OCAMLINCLUDES += $(dir ../lib/riakc)
+    OCAML_LIBS = ../lib/$(LIB_NAME)
+    OCAMLINCLUDES += $(dir ../lib)
 
     foreach (example => ..., $(EXAMPLES))
       .DEFAULT: $(OCamlProgram $(example), $(example))
@@ -118,8 +117,8 @@ OCAMLPACKS[] = $(LIB_PACKAGES)
   ##############################################################################
   # Tests
   .SUBDIRS: _build/tests
-    OCAML_LIBS = ../lib/riakc/$(LIB_NAME)
-    OCAMLINCLUDES += $(dir ../lib/riakc)
+    OCAML_LIBS = ../lib/$(LIB_NAME)
+    OCAMLINCLUDES += $(dir ../lib)
 
     .DEFAULT: $(OCamlProgram all_tests, all_tests)
 
