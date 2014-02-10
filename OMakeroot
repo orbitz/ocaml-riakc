@@ -5,10 +5,8 @@ open build/OCaml
         install install_lib install_doc \
         uninstall uninstall_lib \
         clean distclean \
-        print-paths
+        print_config
 
-################################################################################
-# Primary Commands
 install: install_lib
 uninstall: uninstall_lib
 
@@ -23,18 +21,12 @@ distclean: clean
 # General Project Information
 PROJECT = riakc
 VERSION = 3.0.1-dev
+
 LIB_NAME = $(PROJECT)
-APP_NAME = $(PROJECT)
 LIB_DESCRIPTION = Riak client.
-API_DOC_TITLE = "Riak API"
-
-DEPENDENCIES = core async async_unix bitstring bitstring.syntax protobuf
-PACKAGES = $(DEPENDENCIES)
-
 LIB_MODULES[] =
   $(removesuffix $(basename $(ls lib/riakc/*.ml)))
-
-LIB_SOURCES = $(add-wrapper lib/riakc, .ml, $(LIB_MODULES))
+LIB_PACKAGES = core async async_unix bitstring.syntax protobuf
 
 EXAMPLES[] =
   $(removesuffix $(basename $(ls examples/*.ml)))
@@ -56,7 +48,7 @@ if $(not $(defined DOC_DIR))
   DOC_DIR = $(PREFIX)/doc
   export
 
-print-paths:
+print_config:
   echo "PREFIX = $(PREFIX)"
   echo "BIN_DIR = $(BIN_DIR)"
   echo "DOC_DIR = $(DOC_DIR)"
@@ -79,7 +71,7 @@ OCAML_LINK_FLAGS +=
 OCAML_BYTE_LINK_FLAGS =
 OCAML_NATIVE_LINK_FLAGS =
 OCAMLFINDFLAGS = -syntax camlp4o
-OCAMLPACKS[] = $(PACKAGES)
+OCAMLPACKS[] = $(LIB_PACKAGES)
 
 .SUBDIRS: .
   mkdir -p _build/lib/riakc
@@ -90,7 +82,7 @@ OCAMLPACKS[] = $(PACKAGES)
   vmount(-l, examples/, _build/examples/)
   vmount(-l, tests/, _build/tests/)
 
-  ################################################################################
+  ##############################################################################
   # Library
   .SUBDIRS: _build/lib/riakc
 
@@ -99,29 +91,31 @@ OCAMLPACKS[] = $(PACKAGES)
       echo "version = \"$(VERSION)\"" >> $@
       echo "archive(byte) = \"$(LIB_NAME).cma\"" >> $@
       echo "archive(native) = \"$(LIB_NAME).cmxa\"" >> $@
-      echo "requires = \"$(DEPENDENCIES)\"" >> $@
+      echo "requires = \"$(LIB_PACKAGES)\"" >> $@
 
     lib: $(OCamlLibrary $(LIB_NAME), $(LIB_MODULES))
+
     .DEFAULT: lib META
 
     install_lib: $(LIB_NAME).cma $(LIB_NAME).cmxa META uninstall_lib
-      ocamlfind install $(LIB_NAME) META \
+      ocamlfind install $(PROJECT) META \
         *.cm[iox] *.o $(LIB_NAME).cma $(LIB_NAME).cmxa *.a
 
     uninstall_lib:
-      ocamlfind remove $(LIB_NAME)
+      ocamlfind remove $(PROJECT)
 
 
-  ################################################################################
+  ##############################################################################
   # Examples
   .SUBDIRS: _build/examples
     OCAML_LIBS = ../lib/riakc/$(LIB_NAME)
     OCAMLINCLUDES += $(dir ../lib/riakc)
+
     foreach (example => ..., $(EXAMPLES))
       .DEFAULT: $(OCamlProgram $(example), $(example))
 
 
-  ################################################################################
+  ##############################################################################
   # Tests
   .SUBDIRS: _build/tests
     OCAML_LIBS = ../lib/riakc/$(LIB_NAME)
@@ -130,19 +124,20 @@ OCAMLPACKS[] = $(PACKAGES)
     .DEFAULT: $(OCamlProgram all_tests, all_tests)
 
 
-  ################################################################################
+  ##############################################################################
   # API Documentation
   .SUBDIRS: _build/doc
-    api/index.html: lib
+
+    api/index.html: ../lib/riakc/$(LIB_NAME).cma
       rm -rf api
       mkdir api
       ocamlfind ocamldoc \
         $(OCAMLFINDFLAGS) \
-        -package $(concat \,, $(PACKAGES)) \
+        -package $(concat \,, $(LIB_PACKAGES)) \
         -thread \
         -charset UTF-8 \
         -d api \
-        -t $(API_DOC_TITLE) \
+        -t "OCaml Riak $(VERSION)" \
         -keep-code \
         -colorize-code \
         -sort \
@@ -153,9 +148,7 @@ OCAMLPACKS[] = $(PACKAGES)
     doc: api/index.html
 
   install_doc: doc
-    section
-      X = $(DOC_DIR)/$(PROJECT)
-      echo "Installing documentation in $(X)" >> $(BUILD_SUMMARY)
-      rm -rf $(X)
-      mkdir -p $(X)
-      cp -r _build/doc/api $(X)/
+    echo "Installing documentation in $(DOC_DIR)"
+    rm -rf $(DOC_DIR)
+    mkdir -p $(DOC_DIR)
+    cp -r _build/doc/api $(DOC_DIR)/
