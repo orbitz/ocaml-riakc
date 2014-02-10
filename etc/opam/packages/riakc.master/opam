@@ -1,0 +1,17 @@
+opam-version: "1"
+maintainer: "agarwal1975@gmail.com"
+build: [
+  ["omake" "-j2"]
+  ["omake" "install"]
+]
+
+remove: [
+  ["ocamlfind" "remove" "riakc"]
+]
+
+depends: [
+  "ocamlfind"
+  "core" {>= "109.12.00"}
+  "async"
+  "protobuf"
+]
